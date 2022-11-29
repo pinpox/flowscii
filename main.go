@@ -25,25 +25,19 @@ type Objects struct {
 }
 
 type Line struct {
-	PrimitiveCoords
-	Type string `json:"type"`
+	Coords []int  `json:"coords"`
+	Type   string `json:"type"`
 }
 type Text struct {
-	PrimitiveCoords
-	Text string `json:"text"`
-}
-
-type PrimitiveCoords struct {
-	Coords []int `json:"coords"`
+	Coords []int  `json:"coords"`
+	Text   string `json:"text"`
 }
 
 type Primitive interface {
-	Draw() (int, int, RuneMap)
+	Drawable() Drawable
 	// TODO
 	// Validate() error
 }
-
-type Canvas [][]string
 
 // Map function over slice
 func map2[T, U any](data []T, f func(T) U) []U {
@@ -89,9 +83,27 @@ func main() {
 	// print out the user Type, their name, and their facebook url
 	// as just an example
 
+	var canvas Canvas
+
 	for _, v := range graph.Objects.Box {
-		x, y, text := v.Draw()
-		fmt.Printf("Box at (%v,%v):\n%v\n", x, y, text)
+		d := v.Drawable()
+		fmt.Printf("Box at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
+		canvas.Add(v)
 	}
+
+	// for _, v := range graph.Objects.Line {
+	//	// TODO draw lines
+	//	x, y, text := v.Drawble()
+	//	canvas.Add(v)
+	// }
+
+	// for _, v := range graph.Objects.Text {
+	//	// TODO draw text
+	//	x, y, text := v.Drawable()
+	//	canvas.Add(v)
+	// }
+
+	fmt.Println("Resulting Canvas:")
+	fmt.Println(canvas.String())
 
 }

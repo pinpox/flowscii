@@ -1,7 +1,7 @@
 package main
 
 type Box struct {
-	PrimitiveCoords
+	Coords []int `json:"coords"`
 
 	// Boxtype for now supports "default" or "shadow"
 	Boxtype string `json:"boxtype"`
@@ -17,7 +17,15 @@ func makeRow(start, mid, end rune, length int) []rune {
 	return out
 }
 
-func (b Box) Draw() (int, int, RuneMap) {
+func (b Box) Validate() error {
+	//TODO implement
+	// - start is lower than end and in bounds
+	// - at least 2x2
+	return nil
+}
+
+
+func (b Box) Drawable() Drawable {
 
 	var out RuneMap
 
@@ -35,8 +43,8 @@ func (b Box) Draw() (int, int, RuneMap) {
 		for i := 1; i < height; i++ {
 			out[i] = append(out[i], '░')
 		}
-		out = append(out, makeRow('░', '░', '░', length+1))
+		out = append(out, makeRow(' ', '░', '░', length+1))
 	}
 
-	return b.Coords[0], b.Coords[1], out
+	return Drawable{b.Coords[0], b.Coords[1], out}
 }
