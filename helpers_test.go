@@ -1,7 +1,6 @@
 package main
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -23,7 +22,7 @@ func TestRuneMap_Get(t *testing.T) {
 				{'e', 'f', 'g', 'h'},
 				{'a', 'b', 'c', 'd'},
 			}},
-			args: args{ x: 0, y: 2 },
+			args: args{x: 0, y: 2},
 			want: 'a',
 		},
 
@@ -32,8 +31,8 @@ func TestRuneMap_Get(t *testing.T) {
 			rm: RuneMap{[][]rune{
 				{'e', 'f', 'g', 'h'},
 				{'a', 'b', 'c', 'd'},
-			} },
-			args: args{ x: 3, y: 1 },
+			}},
+			args: args{x: 3, y: 1},
 			want: 'd',
 		},
 
@@ -43,8 +42,8 @@ func TestRuneMap_Get(t *testing.T) {
 				{'i', 'j', 'k', 'l'},
 				{'e', 'f', 'g', 'h'},
 				{'a', 'b', 'c', 'd'},
-			} },
-			args: args{ x: 1, y: 1 },
+			}},
+			args: args{x: 1, y: 1},
 			want: 'f',
 		},
 		// TODO: Add test cases.
@@ -82,19 +81,79 @@ func TestRuneMap_Dims(t *testing.T) {
 	tests := []struct {
 		name  string
 		rm    RuneMap
-		want  int
-		want1 int
+		wantX int
+		wantY int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "9x9",
+			rm: RuneMap{
+				[][]rune{
+					{'.', '.', '.'},
+					{'.', '.', '.'},
+					{'.', '.', '.'},
+				},
+			},
+			wantX: 3,
+			wantY: 3,
+		},
+
+		{
+			name: "5x2",
+			rm: RuneMap{
+				[][]rune{
+					{'.', '.', '.', '.', '.'},
+					{'.', '.', '.', '.', '.'},
+				},
+			},
+			wantX: 5,
+			wantY: 2,
+		},
+
+		{
+			name: "2x5",
+			rm: RuneMap{
+				[][]rune{
+					{'.', '.'},
+					{'.', '.'},
+					{'.', '.'},
+					{'.', '.'},
+					{'.', '.'},
+				},
+			},
+			wantX: 2,
+			wantY: 5,
+		},
+
+		{
+			name: "1x3",
+			rm: RuneMap{
+				[][]rune{
+					{'.'},
+					{'.'},
+					{'.'},
+				},
+			},
+			wantX: 1,
+			wantY: 3,
+		},
+		// panics
+		// {
+		// 	name: "0x0",
+		// 	rm: RuneMap{
+		// 		[][]rune{},
+		// 	},
+		// 	wantX: 0,
+		// 	wantY: 0,
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := tt.rm.Dims()
-			if got != tt.want {
-				t.Errorf("RuneMap.Dims() got = %v, want %v", got, tt.want)
+			gotX, gotY := tt.rm.Dims()
+			if gotX != tt.wantX {
+				t.Errorf("RuneMap.Dims() gotX = %v, wantX %v", gotX, tt.wantX)
 			}
-			if got1 != tt.want1 {
-				t.Errorf("RuneMap.Dims() got1 = %v, want %v", got1, tt.want1)
+			if gotY != tt.wantY {
+				t.Errorf("RuneMap.Dims() gotY = %v, wantY %v", gotY, tt.wantY)
 			}
 		})
 	}
@@ -106,16 +165,39 @@ func Test_initRuneMap(t *testing.T) {
 		y int
 	}
 	tests := []struct {
-		name string
-		args args
-		want RuneMap
+		name     string
+		args     args
+		wantDimX int
+		wantDimY int
 	}{
+		{
+			name:     "3x3",
+			args:     args{3, 3},
+			wantDimX: 3,
+			wantDimY: 3,
+		},
+		{
+			name:     "1x3",
+			args:     args{1, 3},
+			wantDimX: 1,
+			wantDimY: 3,
+		},
+		{
+			name:     "3x1",
+			args:     args{3, 1},
+			wantDimX: 3,
+			wantDimY: 1,
+		},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := initRuneMap(tt.args.x, tt.args.y); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("initRuneMap() = %v, want %v", got, tt.want)
+			gotX, gotY := initRuneMap(tt.args.x, tt.args.y).Dims()
+			if gotX != tt.wantDimX {
+				t.Errorf("initRuneMap.Dims() gotX = %v, wantDimX %v", gotX, tt.wantDimX)
+			}
+			if gotY != tt.wantDimY {
+				t.Errorf("initRuneMap.Dims() gotY = %v, wantDimY %v", gotY, tt.wantDimY)
 			}
 		})
 	}

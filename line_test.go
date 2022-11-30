@@ -7,10 +7,6 @@ import (
 
 func TestLine_Drawable(t *testing.T) {
 
-	//
-	//
-	//
-
 	rm_tr := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
 
 	rm_tr.Set(0, 2, '─')
