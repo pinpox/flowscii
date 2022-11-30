@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 type Graph struct {
@@ -24,10 +23,6 @@ type Objects struct {
 	Text []Text `json:"text"`
 }
 
-type Line struct {
-	Coords []int  `json:"coords"`
-	Type   string `json:"type"`
-}
 type Text struct {
 	Coords []int  `json:"coords"`
 	Text   string `json:"text"`
@@ -48,14 +43,6 @@ func map2[T, U any](data []T, f func(T) U) []U {
 	return res
 }
 
-// Represent [][]rune as string (with newlines)
-func (rm RuneMap) String() string {
-	return strings.Join(map2(rm, func(r []rune) string {
-		return string(r)
-	}), "\n")
-}
-
-type RuneMap [][]rune
 
 func main() {
 	// Open our jsonFile
@@ -88,6 +75,12 @@ func main() {
 	for _, v := range graph.Objects.Box {
 		d := v.Drawable()
 		fmt.Printf("Box at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
+		canvas.Add(v)
+	}
+
+	for _, v := range graph.Objects.Line {
+		d := v.Drawable()
+		fmt.Printf("Line at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
 		canvas.Add(v)
 	}
 

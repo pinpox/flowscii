@@ -41,44 +41,37 @@ func (c Canvas) String() string {
 	// Find highest coordinate
 	var maxX, maxY int
 	for _, v := range drawables {
-		if v.StartX+len(v.Content) > maxX {
-			maxX = v.StartX + len(v.Content)
+
+		dX, dY := v.Content.Dims()
+
+		if v.StartX+dX > maxX {
+			maxX = v.StartX + dX
 		}
-		if v.StartY+len(v.Content[0]) > maxY {
-			maxY = v.StartY+len(v.Content[0])
+		if v.StartY+dY > maxY {
+			maxY = v.StartY + dY
 		}
 	}
 
 	fmt.Println("Min X/Y", minX, minY)
 	fmt.Println("Max X/Y", maxX, maxY)
 
-	var r RuneMap = make([][]rune, maxX)
-	for i := 0; i < maxX; i++ {
-		r[i] = make([]rune, maxY)
-	}
-
-
-
-
-
-
-	for x := range r {
-		for y := range r[x] {
-			r[x][y] = '.'
-		}
-	}
+	var r RuneMap = initRuneMap(maxX, maxY)
 
 	for _, d := range drawables {
-		for x := range d.Content {
-			for y := range d.Content[x] {
-				// TODO add overlapping/replacing rules
-				r[x+d.StartX][y+d.StartY] = d.Content[x][y]
+
+		dX, dY := d.Content.Dims()
+
+		for x := 0; x < dX; x++ {
+			for y := 0; y < dY; y++ {
+				if d.Content.Get(x, y) == '.' {
+					continue
+				}
+				r.Set(x+d.StartX, y+d.StartY, d.Content.Get(x, y))
 			}
 		}
 	}
 
-
-	return r.String()
+	return fmt.Sprint(r)
 
 }
 
