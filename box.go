@@ -1,5 +1,10 @@
 package main
 
+import (
+	// "math"
+	// "fmt"
+)
+
 type Box struct {
 	Coords []int `json:"coords"`
 
@@ -24,34 +29,94 @@ func (b Box) Validate() error {
 	return nil
 }
 
+func abs(i int) int {
+	if i < 0 {
+		i = -i
+	}
+	return i
+}
 
 func (b Box) Drawable() Drawable {
 
-	var out RuneMap
+	// Coords: []int{2, 0, 0, 2},
 
-	length := b.Coords[2] - b.Coords[0]
-	height := b.Coords[3] - b.Coords[1]
+	// normalize: (x1, y1) bottomleft, (x2, y2) top right
 
-	r := initRuneMap(length, height)
+	var x1, x2, y1, y2 int
 
-	r.Set(0,0, '└')
-	r.Set(length, 0, '┘')
-	r.Set(length, height, '┐')
-	r.Set(0, height, '┌')
+	if b.Coords[2] > b.Coords[0] {
+		x1 = b.Coords[0]
+		x2 = b.Coords[2]
+	} else {
+		x1 = b.Coords[2]
+		x2 = b.Coords[0]
+	}
 
-	// out = append(out, makeRow('┌', '─', '┐', length))
-	// for i := 0; i < height-2; i++ {
-	// 	out = append(out, makeRow('│', ' ', '│', length))
-	// }
-	// out = append(out, makeRow('└', '─', '┘', length))
+	if b.Coords[3] > b.Coords[1] {
+		y1 = b.Coords[1]
+		y2 = b.Coords[3]
+	} else {
+		y1 = b.Coords[3]
+		y2 = b.Coords[1]
+	}
 
-	// if b.Type == "shadow" {
-	// 	out[0] = append(out[0], ' ')
-	// 	for i := 1; i < height; i++ {
-	// 		out[i] = append(out[i], '░')
-	// 	}
-	// 	out = append(out, makeRow(' ', '░', '░', length+1))
-	// }
+	// fmt.Printf("Drawing Box (%v,%v) -> (%v,%v)", x1, y1, x2, y2)
 
-	return Drawable{b.Coords[0], b.Coords[1], out}
+	lenX := x2 - x1 + 1
+	lenY := y2 - y1 + 1
+
+	offsetX := x1
+	offsetY := y1
+
+
+	x2 = x2-x1
+	y2 = y2-y1
+	x1, y1 = 0, 0
+
+	r := initRuneMap(lenX, lenY)
+
+	// fmt.Println("len x/y", lenX, lenY)
+	// dx, dy := r.Dims()
+	// fmt.Println("dims", dx, dy)
+
+	r.Set(0, 0, '└')
+	r.Set(lenX-1, 0, '┘')
+	r.Set(lenX-1, lenY-1, '┐')
+	r.Set(0, lenY-1, '┌')
+
+	for x := x1 + 1; x < x2; x++ {
+		r.Set(x, y1, '─')
+		r.Set(x, y2, '─')
+	}
+
+	for y := y1 + 1; y < y2; y++ {
+		r.Set(x1, y, '│')
+		r.Set(x2, y, '│')
+	}
+
+
+	if b.Type == "shadow" {
+
+		rnew := initRuneMap(lenX+1, lenY+1)
+
+		for x := 0; x <lenX; x++ {
+			for y := 0; y <lenY; y++ {
+				rnew.Set(x,y+1, r.Get(x,y))
+			}
+		}
+
+		// rnew.Set(0, lenY, '.')
+
+		// Vertical shadow
+		for i := 1; i < lenY; i++ {
+			rnew.Set( lenX, i, '░')
+		}
+
+
+		rnew.data[0] =  makeRow('.', '░', '░',lenX+1)
+
+		r = rnew
+	}
+
+	return Drawable{offsetX, offsetY, r}
 }
