@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 type RuneMap struct {
 	data [][]rune
 }
@@ -28,9 +26,6 @@ func (rm RuneMap) String() string {
 	out := ""
 
 	lenX, lenY := rm.Dims()
-
-	fmt.Println(lenY)
-	fmt.Println(lenX)
 
 	for y := lenY - 1; y >= 0; y-- {
 

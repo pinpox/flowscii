@@ -73,14 +73,14 @@ func main() {
 	var canvas Canvas
 
 	for _, v := range graph.Objects.Box {
-		d := v.Drawable()
-		fmt.Printf("Box at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
+		// d := v.Drawable()
+		// fmt.Printf("Box at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
 		canvas.Add(v)
 	}
 
 	for _, v := range graph.Objects.Line {
-		d := v.Drawable()
-		fmt.Printf("Line at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
+		// d := v.Drawable()
+		// fmt.Printf("Line at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
 		canvas.Add(v)
 	}
 
@@ -96,7 +96,7 @@ func main() {
 	//	canvas.Add(v)
 	// }
 
-	fmt.Println("Resulting Canvas:")
+	// fmt.Println("Resulting Canvas:")
 	fmt.Println(canvas.String())
 
 }

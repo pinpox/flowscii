@@ -155,6 +155,15 @@ func TestLine_Drawable(t *testing.T) {
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_bl},
 		},
+
+		{
+			name: "Draw two lines, offset (right-up)",
+			fields: fields{
+				Coords: []int{2, 5, 4, 5, 4, 7},
+				Type:   "default",
+			},
+			want: Drawable{StartX: 2, StartY: 5, Content: rm_br},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

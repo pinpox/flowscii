@@ -18,7 +18,6 @@ type Canvas struct {
 }
 
 func (c Canvas) String() string {
-	//TODO
 
 	var drawables []Drawable
 
@@ -27,8 +26,9 @@ func (c Canvas) String() string {
 		drawables = append(drawables, v.Drawable())
 	}
 
+
 	// Find lowest coordinate
-	var minX, minY int
+	var minX, minY int = drawables[0].StartX, drawables[0].StartY
 	for _, v := range drawables {
 		if v.StartX < minX {
 			minX = v.StartX
@@ -39,7 +39,7 @@ func (c Canvas) String() string {
 	}
 
 	// Find highest coordinate
-	var maxX, maxY int
+	var maxX, maxY int = drawables[0].StartX, drawables[0].StartY
 	for _, v := range drawables {
 
 		dX, dY := v.Content.Dims()
@@ -52,8 +52,8 @@ func (c Canvas) String() string {
 		}
 	}
 
-	fmt.Println("Min X/Y", minX, minY)
-	fmt.Println("Max X/Y", maxX, maxY)
+	// fmt.Println("Min X/Y", minX, minY)
+	// fmt.Println("Max X/Y", maxX, maxY)
 
 	var r RuneMap = initRuneMap(maxX, maxY)
 
@@ -63,6 +63,7 @@ func (c Canvas) String() string {
 
 		for x := 0; x < dX; x++ {
 			for y := 0; y < dY; y++ {
+				// Don't overwrite with empty
 				if d.Content.Get(x, y) == '.' {
 					continue
 				}
