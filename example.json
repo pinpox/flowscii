@@ -55,7 +55,43 @@
 
 		],
 		"text": [
-			{"coords": [5,5], "text": "foobar"}
+			{
+				"text": "INTERNET",
+				"coords": [3,3],
+				"style": ["italic"]
+			},
+			{
+				"text": "192.168.45.0/24",
+				"coords": [31,2]
+			},
+			{
+				"text": "ROUTER",
+				"coords": [18,2],
+				"style": ["italic", "bold"]
+			},
+			{
+				"text": "router-prod",
+				"coords": [16,3]
+			},
+			{
+				"text": "HA-PORT",
+				"coords": [52,2],
+				"style": ["italic", "bold"]
+			},
+			{
+				"coords": [53,3],
+				"text": "Dummy"
+			},
+			{
+				"text": "K3S-INGRESS",
+				"coords": [40,11],
+				"style": [ "bold"]
+			},
+			{
+				"text": "K3S-INGRESS",
+				"coords": [61,11],
+				"style": [ "bold"]
+			}
 		]
 	}
 }

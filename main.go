@@ -28,11 +28,6 @@ type Objects struct {
 	Text []Text `json:"text"`
 }
 
-type Text struct {
-	Coords []int  `json:"coords"`
-	Text   string `json:"text"`
-}
-
 type Primitive interface {
 	Drawable() Drawable
 	// TODO
@@ -187,12 +182,10 @@ func drawBar(s tcell.Screen, style tcell.Style, items []string) {
 	}
 }
 
-func drawGPrimitive(s tcell.Screen, v Primitive) {
+func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
 	log.Println("drawing primitive:", v)
 	d := v.Drawable()
 	dimX, dimY := d.Content.Dims()
-
-	style := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
 	for x := 0; x < dimX; x++ {
 		for y := 0; y < dimY; y++ {
@@ -216,24 +209,22 @@ func drawGPrimitive(s tcell.Screen, v Primitive) {
 }
 
 func drawGraph(s tcell.Screen, g Graph) {
+	style := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
 	for _, v := range g.Objects.Box {
-		drawGPrimitive(s, v)
+		drawGPrimitive(s, v, style)
 	}
 
 	for _, v := range g.Objects.Line {
-		drawGPrimitive(s, v)
+		drawGPrimitive(s, v, style)
 	}
 
-	// TODO implement text primitive
-	// for _, v := range g.Objects.Text {
-	// drawGPrimitive(s, v)
-	// }
+	for _, v := range g.Objects.Text {
+		drawGPrimitive(s, v, style.Bold(v.isBold()).Italic(v.isItalic()))
+	}
 
 	// Clean up junctions
 	xmax, ymax := s.Size()
-
-	style := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
 	for x := 0; x < xmax; x++ {
 		for y := 0; y < ymax; y++ {
@@ -262,7 +253,7 @@ func drawGraph(s tcell.Screen, g Graph) {
 
 				// No horizontal line left
 				c_left, _, _, _ := s.GetContent(x-1, y)
-				if !(c_left == tcell.RuneHLine){
+				if !(c_left == tcell.RuneHLine) {
 					s.SetContent(x, y, tcell.RuneLTee, nil, style)
 				}
 			}
