@@ -225,6 +225,7 @@ func drawGraph(s tcell.Screen, g Graph) {
 		drawGPrimitive(s, v)
 	}
 
+	// TODO implement text primitive
 	// for _, v := range g.Objects.Text {
 	// drawGPrimitive(s, v)
 	// }
@@ -264,17 +265,6 @@ func drawGraph(s tcell.Screen, g Graph) {
 				if !(c_left == tcell.RuneHLine){
 					s.SetContent(x, y, tcell.RuneLTee, nil, style)
 				}
-
-
-// RuneRTee     = '┤'
-// RuneLTee     = '├'
-
-
-
-				// // No vertical line below
-				// if c_above, _, _, _ := s.GetContent(x, y+1); c_above != tcell.RuneVLine {
-				// 	s.SetContent(x, y, tcell.RuneTTee, nil, style)
-				// }
 			}
 
 		}
@@ -315,8 +305,8 @@ func main() {
 	s.Clear()
 
 	// Draw initial boxes
-	drawBox(s, 1, 1, 42, 7, boxStyle, "Click and drag to draw a box")
-	drawBox(s, 5, 9, 32, 14, boxStyle, "Press C to reset")
+	// drawBox(s, 1, 1, 42, 7, boxStyle, "Click and drag to draw a box")
+	// drawBox(s, 5, 9, 32, 14, boxStyle, "Press C to reset")
 
 	// drawText(s, 0, 0, 100, 10, styleBar, "TEST")
 	drawBar(s, styleBar, []string{"[s] save", "[m] metadata", "[?] help", "[esc] quit"})

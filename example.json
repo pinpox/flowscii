@@ -11,7 +11,6 @@
 			{ "coords": [37,10,53,24], "type": "shadow"},
 			{ "coords": [58,10,74,24], "type": "shadow"},
 
-
 			{ "coords": [39,13,51,16], "type": "default"},
 			{ "coords": [39,16,51,19], "type": "default"},
 
@@ -23,26 +22,21 @@
 		],
 		"line": [
 			{
-				"coords": [ 53, 17, 58, 17 ],
+				"coords": [ 54, 17, 57, 17 ],
 				"type": "double_arrow"
 			},
 			{
 				"coords": [ 28,3, 48,3 ],
 				"type": "arrow"
 			},
-
 			{
 				"coords": [ 55,4, 55,7 ],
 				"type": "arrow"
 			},
-
-
 			{
 				"coords": [ 45, 9, 45, 7, 66, 7, 66, 9 ],
 				"type": "double_arrow"
 			},
-
-
 			{
 				"coords": [
 					37, 11,

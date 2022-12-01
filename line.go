@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "log"
+	"log"
 )
 
 type Line struct {
@@ -75,8 +75,15 @@ func (l Line) Drawable() Drawable {
 	// fmt.Println(r)
 
 	var prevDir int = 0
+
 	for i := 2; i < len(coords); i += 2 {
 		var prevX, prevY int = coords[i-2], coords[i-1]
+
+		log.Println(l.Type)
+
+		if l.Type == "double_arrow" && i == 2 {
+			log.Println("Double arrow line detected!!!!!!!!!!!!!!!!!!!!!!!")
+		}
 
 		//    1
 		//  4 0 2
@@ -92,13 +99,10 @@ func (l Line) Drawable() Drawable {
 
 			// Down
 			if prevY < y {
-				// fmt.Println("drawing up")
-				// Up
 				for i := prevY; i <= y; i++ {
 					r.Set(x, i, '│')
 				}
 
-				// fmt.Println("Prev was ", prevDir)
 				switch prevDir {
 				case 2:
 					r.Set(x, prevY, '┐')
@@ -106,7 +110,7 @@ func (l Line) Drawable() Drawable {
 					r.Set(x, prevY, '┌')
 				}
 
-				prevDir = 1
+				prevDir = 3
 			} else {
 				// Up
 				for i := y; i <= prevY; i++ {
@@ -120,8 +124,9 @@ func (l Line) Drawable() Drawable {
 					r.Set(x, prevY, '└')
 				}
 
-				prevDir = 3
+				prevDir = 1
 			}
+
 			continue
 		}
 
@@ -161,6 +166,32 @@ func (l Line) Drawable() Drawable {
 			continue
 		}
 		panic("Invalid line coords")
+
+	}
+
+	arrows := []rune{'▲', '►', '▼', '◄'}
+	if l.Type == "double_arrow" || l.Type == "arrow" {
+		r.Set(coords[len(coords)-2], coords[len(coords)-1], arrows[prevDir-1])
+	}
+
+	if l.Type == "double_arrow" {
+		log.Println("setting start arrow")
+
+		if coords[0] > coords[2] {
+			r.Set(coords[0], coords[1], arrows[1])
+		}
+
+		if coords[0] < coords[2] {
+			r.Set(coords[0], coords[1], arrows[3])
+		}
+
+		if coords[1] > coords[3] {
+			r.Set(coords[0], coords[1], arrows[2])
+		}
+
+		if coords[1] < coords[3] {
+			r.Set(coords[0], coords[1], arrows[1])
+		}
 
 	}
 
