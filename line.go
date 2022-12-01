@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "fmt"
+	// "log"
 )
 
 type Line struct {
@@ -90,7 +90,7 @@ func (l Line) Drawable() Drawable {
 		// Vertical line
 		if x == prevX {
 
-			// draw line from (x, prevY) to (x, y)
+			// Down
 			if prevY < y {
 				// fmt.Println("drawing up")
 				// Up
@@ -101,24 +101,23 @@ func (l Line) Drawable() Drawable {
 				// fmt.Println("Prev was ", prevDir)
 				switch prevDir {
 				case 2:
-					r.Set(x, prevY, '┘')
+					r.Set(x, prevY, '┐')
 				case 4:
-					r.Set(x, prevY, '└')
+					r.Set(x, prevY, '┌')
 				}
 
 				prevDir = 1
 			} else {
-				// fmt.Println("drawing down")
-				//Down
+				// Up
 				for i := y; i <= prevY; i++ {
 					r.Set(x, i, '│')
 				}
 
 				switch prevDir {
 				case 2:
-					r.Set(x, prevY, '┐')
+					r.Set(x, prevY, '┘')
 				case 4:
-					r.Set(x, prevY, '┌')
+					r.Set(x, prevY, '└')
 				}
 
 				prevDir = 3

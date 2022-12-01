@@ -3,6 +3,7 @@ package main
 import (
 	// "math"
 	// "fmt"
+	"log"
 )
 
 type Box struct {
@@ -38,29 +39,12 @@ func abs(i int) int {
 
 func (b Box) Drawable() Drawable {
 
-	// Coords: []int{2, 0, 0, 2},
+	var x1, y1, x2, y2 int = b.Coords[0], b.Coords[1], b.Coords[2], b.Coords[3]
 
-	// normalize: (x1, y1) bottomleft, (x2, y2) top right
-
-	var x1, x2, y1, y2 int
-
-	if b.Coords[2] > b.Coords[0] {
-		x1 = b.Coords[0]
-		x2 = b.Coords[2]
-	} else {
-		x1 = b.Coords[2]
-		x2 = b.Coords[0]
+	if x1 >= x2 || y1 >= y2 {
+		//TODO better error handling?
+		log.Fatalf("Invalid Box coordinates (%vx%v)->(%vx%v)!\n", x1, y1, x2, y2)
 	}
-
-	if b.Coords[3] > b.Coords[1] {
-		y1 = b.Coords[1]
-		y2 = b.Coords[3]
-	} else {
-		y1 = b.Coords[3]
-		y2 = b.Coords[1]
-	}
-
-	// fmt.Printf("Drawing Box (%v,%v) -> (%v,%v)", x1, y1, x2, y2)
 
 	lenX := x2 - x1 + 1
 	lenY := y2 - y1 + 1
@@ -68,21 +52,15 @@ func (b Box) Drawable() Drawable {
 	offsetX := x1
 	offsetY := y1
 
-
 	x2 = x2-x1
 	y2 = y2-y1
 	x1, y1 = 0, 0
 
 	r := initRuneMap(lenX, lenY)
-
-	// fmt.Println("len x/y", lenX, lenY)
-	// dx, dy := r.Dims()
-	// fmt.Println("dims", dx, dy)
-
-	r.Set(0, 0, '└')
-	r.Set(lenX-1, 0, '┘')
-	r.Set(lenX-1, lenY-1, '┐')
-	r.Set(0, lenY-1, '┌')
+	r.Set(lenX-1, 0, '┐')
+	r.Set(lenX-1, lenY-1, '┘')
+	r.Set(0, lenY-1, '└')
+	r.Set(0, 0, '┌')
 
 	for x := x1 + 1; x < x2; x++ {
 		r.Set(x, y1, '─')
@@ -101,19 +79,16 @@ func (b Box) Drawable() Drawable {
 
 		for x := 0; x <lenX; x++ {
 			for y := 0; y <lenY; y++ {
-				rnew.Set(x,y+1, r.Get(x,y))
+				rnew.Set(x,y, r.Get(x,y))
 			}
 		}
-
-		// rnew.Set(0, lenY, '.')
 
 		// Vertical shadow
 		for i := 1; i < lenY; i++ {
 			rnew.Set( lenX, i, '░')
 		}
 
-
-		rnew.data[0] =  makeRow('.', '░', '░',lenX+1)
+		rnew.data[lenY] =  makeRow('.', '░', '░',lenX+1)
 
 		r = rnew
 	}

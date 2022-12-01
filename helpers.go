@@ -1,10 +1,13 @@
 package main
+// import ("log")
+
 
 type RuneMap struct {
 	data [][]rune
 }
 
 func (rm RuneMap) Get(x, y int) rune {
+	// log.Println("Requesting", x, y, "from", rm.data)
 	return rm.data[y][x]
 }
 

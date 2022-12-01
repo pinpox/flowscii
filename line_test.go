@@ -7,34 +7,40 @@ import (
 
 func TestLine_Drawable(t *testing.T) {
 
-	rm_tr := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
 
-	rm_tr.Set(0, 2, '─')
-	rm_tr.Set(1, 2, '─')
-	rm_tr.Set(2, 2, '┐')
+// -----> X
+// |
+// |
+// |
+// V  Y
+
+	rm_tr := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
+	rm_tr.Set(0, 0, '─')
+	rm_tr.Set(1, 0, '─')
+	rm_tr.Set(2, 0, '┐')
 	rm_tr.Set(2, 1, '│')
-	rm_tr.Set(2, 0, '│')
+	rm_tr.Set(2, 2, '│')
 
 	rm_tl := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
-	rm_tl.Set(2, 2, '─')
-	rm_tl.Set(1, 2, '─')
-	rm_tl.Set(0, 2, '┌')
+	rm_tl.Set(0, 2, '│')
 	rm_tl.Set(0, 1, '│')
-	rm_tl.Set(0, 0, '│')
+	rm_tl.Set(0, 0, '┌')
+	rm_tl.Set(1, 0, '─')
+	rm_tl.Set(2, 2, '─')
 
 	rm_br := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
-	rm_br.Set(0, 0, '─')
-	rm_br.Set(1, 0, '─')
-	rm_br.Set(2, 0, '┘')
+	rm_br.Set(0, 2, '─')
+	rm_br.Set(1, 2, '─')
+	rm_br.Set(2, 2, '┘')
 	rm_br.Set(2, 1, '│')
-	rm_br.Set(2, 2, '│')
+	rm_br.Set(2, 0, '│')
 
 	rm_bl := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
-	rm_bl.Set(2, 0, '─')
-	rm_bl.Set(1, 0, '─')
-	rm_bl.Set(0, 0, '└')
+	rm_bl.Set(0, 0, '│')
 	rm_bl.Set(0, 1, '│')
-	rm_bl.Set(0, 2, '│')
+	rm_bl.Set(0, 2, '└')
+	rm_bl.Set(1, 2, '─')
+	rm_bl.Set(2, 2, '─')
 
 	type fields struct {
 		Coords []int
@@ -94,7 +100,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (right-up)",
 			fields: fields{
-				Coords: []int{0, 0, 2, 0, 2, 2},
+				Coords: []int{0, 2, 2, 2, 0, 2},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_br},
@@ -102,7 +108,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (right-down)",
 			fields: fields{
-				Coords: []int{0, 2, 2, 2, 2, 0},
+				Coords: []int{0, 0, 2, 0, 2, 2},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_tr},
@@ -110,7 +116,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (left-up)",
 			fields: fields{
-				Coords: []int{2, 0, 0, 0, 0, 2},
+				Coords: []int{2, 2, 0, 2, 0, 0},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_bl},
@@ -118,7 +124,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (left-down)",
 			fields: fields{
-				Coords: []int{2, 2, 0, 2, 0, 0},
+				Coords: []int{2, 0, 0, 0, 0, 2},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_tl},
@@ -126,7 +132,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (up-left)",
 			fields: fields{
-				Coords: []int{2, 0, 2, 2, 0, 2},
+				Coords: []int{2, 2, 2, 0, 0, 0},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_tr},
@@ -134,7 +140,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (down-left)",
 			fields: fields{
-				Coords: []int{2, 2, 2, 0, 0, 0},
+				Coords: []int{2, 0, 2, 2, 0, 2},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_br},
@@ -142,7 +148,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (up-right)",
 			fields: fields{
-				Coords: []int{0, 0, 0, 2, 2, 2},
+				Coords: []int{0, 2, 0, 2, 2, 0},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_tl},
@@ -150,7 +156,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (down-right)",
 			fields: fields{
-				Coords: []int{0, 2, 0, 0, 2, 0},
+				Coords: []int{0, 0, 0, 2, 2, 2},
 				Type:   "default",
 			},
 			want: Drawable{StartX: 0, StartY: 0, Content: rm_bl},
@@ -159,10 +165,10 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines, offset (right-up)",
 			fields: fields{
-				Coords: []int{2, 5, 4, 5, 4, 7},
+				Coords: []int{5, 7, 8, 7, 8, 3},
 				Type:   "default",
 			},
-			want: Drawable{StartX: 2, StartY: 5, Content: rm_br},
+			want: Drawable{StartX: 5, StartY: 3, Content: rm_br},
 		},
 	}
 	for _, tt := range tests {
