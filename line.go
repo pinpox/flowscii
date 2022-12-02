@@ -1,10 +1,12 @@
 package main
 
 import (
-	"log"
+	// "log"
 )
 
+
 type Line struct {
+	PrimitiveType
 	Coords []int `json:"coords"`
 
 	// Type supports "default" and "arrow"
@@ -78,12 +80,6 @@ func (l Line) Drawable() Drawable {
 
 	for i := 2; i < len(coords); i += 2 {
 		var prevX, prevY int = coords[i-2], coords[i-1]
-
-		log.Println(l.Type)
-
-		if l.Type == "double_arrow" && i == 2 {
-			log.Println("Double arrow line detected!!!!!!!!!!!!!!!!!!!!!!!")
-		}
 
 		//    1
 		//  4 0 2
@@ -175,7 +171,6 @@ func (l Line) Drawable() Drawable {
 	}
 
 	if l.Type == "double_arrow" {
-		log.Println("setting start arrow")
 
 		if coords[0] > coords[2] {
 			r.Set(coords[0], coords[1], arrows[1])

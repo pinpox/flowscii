@@ -4,7 +4,10 @@ import (
 	"strings"
 )
 
+
+
 type Text struct {
+	PrimitiveType
 	Coords []int  `json:"coords"`
 	Text   string `json:"text"`
 	Style  []string `json:"style"`

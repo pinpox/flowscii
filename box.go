@@ -7,11 +7,24 @@ import (
 )
 
 type Box struct {
+	PrimitiveType
 	Coords []int `json:"coords"`
 
 	// Type for now supports "default" or "shadow"
 	Type string `json:"type"`
 }
+
+func (b *Box) Click(x, y int) {
+	if x >= b.Coords[0] &&
+		x <= b.Coords[2] &&
+		y >= b.Coords[1] &&
+		y <= b.Coords[3] {
+		b.selected = true
+	} else {
+		b.selected = false
+	}
+}
+
 
 func makeRow(start, mid, end rune, length int) []rune {
 	var out []rune = []rune{start}
@@ -52,8 +65,8 @@ func (b Box) Drawable() Drawable {
 	offsetX := x1
 	offsetY := y1
 
-	x2 = x2-x1
-	y2 = y2-y1
+	x2 = x2 - x1
+	y2 = y2 - y1
 	x1, y1 = 0, 0
 
 	r := initRuneMap(lenX, lenY)
@@ -72,23 +85,22 @@ func (b Box) Drawable() Drawable {
 		r.Set(x2, y, '│')
 	}
 
-
 	if b.Type == "shadow" {
 
 		rnew := initRuneMap(lenX+1, lenY+1)
 
-		for x := 0; x <lenX; x++ {
-			for y := 0; y <lenY; y++ {
-				rnew.Set(x,y, r.Get(x,y))
+		for x := 0; x < lenX; x++ {
+			for y := 0; y < lenY; y++ {
+				rnew.Set(x, y, r.Get(x, y))
 			}
 		}
 
 		// Vertical shadow
 		for i := 1; i < lenY; i++ {
-			rnew.Set( lenX, i, '░')
+			rnew.Set(lenX, i, '░')
 		}
 
-		rnew.data[lenY] =  makeRow('.', '░', '░',lenX+1)
+		rnew.data[lenY] = makeRow('.', '░', '░', lenX+1)
 
 		r = rnew
 	}

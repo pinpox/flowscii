@@ -15,11 +15,140 @@ import (
 type Graph struct {
 	Metadata Metadata `json:"metadata"`
 	Objects  Objects  `json:"objects"`
+	events   chan tcell.Event
+	ox, oy   int
+	// := -1, -1
 }
 
 type Metadata struct {
 	Title  string `json:"title"`
 	Author string `json:"author"`
+}
+
+func (g *Graph) Update() {
+	select {
+	case event := <-g.events:
+		log.Println("received message in graph", event)
+		g.handleEvent(event)
+		//TODO Process event
+	default:
+		log.Println("no message received in graph")
+	}
+}
+
+func (g *Graph) DeselectAll() {
+
+	for k := range g.Objects.Box {
+		g.Objects.Box[k].selected = false
+	}
+}
+
+func (g *Graph) Select(x, y int) {
+
+	// Select indices of all boxes clicked inside
+	var boxes_sel []int
+	for k, v := range g.Objects.Box {
+		if x >= v.Coords[0] && x <= v.Coords[2] && y >= v.Coords[1] && y <= v.Coords[3] {
+			boxes_sel = append(boxes_sel, k)
+		}
+	}
+
+	//Find smallest most inner (if any)
+	if len(boxes_sel) >= 1 {
+
+		// select first box
+		var box_n int
+		box_n = boxes_sel[0]
+
+		// (x1_old, y1_old)
+		//       +-----------------------------+ x
+		//       |                             |
+		//       | (x1_new, y1_new)            |
+		//       |        +------+             |
+		//       |        |   @  |             |
+		//       |        |      |             |
+		//       |        +------+             |
+		//       |            (x2_new, y2_new) |
+		//       |                             |
+		//       +-----------------------------+
+		//       y                      (x2_old, y2_old)
+
+		// x - x1_new <= x - x1_old || x2_new - x < x2_old - x ||
+		// y - y1_new <= y - y1_old || y2_new - y < y2_old - y
+
+		// Find smallest box around x, y
+		for _, v := range boxes_sel {
+
+			coords_old := g.Objects.Box[box_n].Coords
+			coords_new := g.Objects.Box[v].Coords
+
+			if x-coords_new[0] <= x-coords_old[0] || coords_new[2]-x < coords_old[2]-x ||
+				y-coords_new[1] <= y-coords_old[1] || coords_new[3]-y < coords_old[3]-y {
+				box_n = v
+			}
+		}
+
+		boxes_sel = []int{box_n}
+		c := g.Objects.Box[box_n].Coords
+
+		for k, v := range g.Objects.Box {
+
+			if (v.Coords[0] >= c[0] && v.Coords[0] <= c[2]) && (v.Coords[1] >= c[1] && v.Coords[1] <= c[3]) &&
+			 (v.Coords[2] >= c[0] && v.Coords[2] <= c[2]) && (v.Coords[3] >= c[1] && v.Coords[3] <= c[3]) {
+				boxes_sel = append(boxes_sel, k)
+			}
+
+		}
+
+		for _, v := range boxes_sel {
+			g.Objects.Box[v].selected = true
+		}
+
+		// Also select all boxes that are inside it
+
+	}
+
+}
+
+func (g *Graph) handleEvent(ev tcell.Event) {
+
+	switch ev := ev.(type) {
+	case *tcell.EventKey:
+		// if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+		//	return
+		// } else if ev.Key() == tcell.KeyCtrlL {
+		//	s.Sync()
+		// } else if ev.Rune() == 'C' || ev.Rune() == 'c' {
+		//	s.Clear()
+		// }
+	case *tcell.EventMouse:
+		x, y := ev.Position()
+
+		// log.Println(x)
+
+		switch ev.Buttons() {
+		case tcell.Button1, tcell.Button2:
+			if g.ox < 0 {
+				g.ox, g.oy = x, y // record location when click started
+			}
+
+			g.Select(x, y)
+
+			log.Printf("GRAPH DDDDD: %d,%d to %d,%d", g.ox, g.oy, x, y)
+
+		case tcell.ButtonNone:
+			if g.ox >= 0 {
+
+				g.DeselectAll()
+
+				// msg := "hi"
+
+				log.Printf("GRAPH Dragged: %d,%d to %d,%d", g.ox, g.oy, x, y)
+				g.ox, g.oy = -1, -1
+			}
+		}
+	}
+
 }
 
 type Objects struct {
@@ -28,8 +157,20 @@ type Objects struct {
 	Text []Text `json:"text"`
 }
 
+type PrimitiveType struct {
+	commands chan PrimitiveCommand
+	selected bool
+}
+
+func (p PrimitiveType) Selected() bool {
+	return p.selected
+}
+
 type Primitive interface {
 	Drawable() Drawable
+	Selected() bool
+	// Click(x, y int)
+	// Drag(x1, y1, x2, y2 int)
 	// TODO
 	// Validate() error
 }
@@ -66,98 +207,35 @@ func loadGraph(path string) Graph {
 	// jsonFile's content into 'users' which we defined above
 	json.Unmarshal(byteValue, &graph)
 
+	graph.events = make(chan tcell.Event, 1)
+
+	for k := range graph.Objects.Box {
+		graph.Objects.Box[k].commands = make(chan PrimitiveCommand, 1)
+	}
+
+	graph.ox = -1
+	graph.oy = -1
+
 	log.Println("Loaded Graph:", graph)
 
 	return graph
 }
 
-func main2() {
-	var graph Graph = loadGraph("example.json")
+type PrimitiveCommandType int64
 
-	var canvas Canvas
+const (
+	SELECT PrimitiveCommandType = iota
+	// DELETE
+	// RESIZE
+	// UPDATE
+)
 
-	for _, v := range graph.Objects.Box {
-		// d := v.Drawable()
-		// fmt.Printf("Box at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
-		canvas.Add(v)
-	}
-
-	for _, v := range graph.Objects.Line {
-		// d := v.Drawable()
-		// fmt.Printf("Line at (%v,%v):\n%v\n", d.StartX, d.StartY, d.Content.String())
-		canvas.Add(v)
-	}
-
-	// for _, v := range graph.Objects.Line {
-	//	// TODO draw lines
-	//	x, y, text := v.Drawble()
-	//	canvas.Add(v)
-	// }
-
-	// for _, v := range graph.Objects.Text {
-	//	// TODO draw text
-	//	x, y, text := v.Drawable()
-	//	canvas.Add(v)
-	// }
-
-	// fmt.Println("Resulting Canvas:")
-	fmt.Println(canvas.String())
-
+type PrimitiveCommand struct {
+	Type   PrimitiveCommandType
+	Params []int
 }
 
 // START TCELL
-
-func drawText(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text string) {
-	row := y1
-	col := x1
-	for _, r := range []rune(text) {
-		s.SetContent(col, row, r, nil, style)
-		col++
-		if col >= x2 {
-			row++
-			col = x1
-		}
-		if row > y2 {
-			break
-		}
-	}
-}
-
-func drawBox(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text string) {
-	if y2 < y1 {
-		y1, y2 = y2, y1
-	}
-	if x2 < x1 {
-		x1, x2 = x2, x1
-	}
-
-	// Fill background
-	for row := y1; row <= y2; row++ {
-		for col := x1; col <= x2; col++ {
-			s.SetContent(col, row, ' ', nil, style)
-		}
-	}
-
-	// Draw borders
-	for col := x1; col <= x2; col++ {
-		s.SetContent(col, y1, tcell.RuneHLine, nil, style)
-		s.SetContent(col, y2, tcell.RuneHLine, nil, style)
-	}
-	for row := y1 + 1; row < y2; row++ {
-		s.SetContent(x1, row, tcell.RuneVLine, nil, style)
-		s.SetContent(x2, row, tcell.RuneVLine, nil, style)
-	}
-
-	// Only draw corners if necessary
-	if y1 != y2 && x1 != x2 {
-		s.SetContent(x1, y1, tcell.RuneULCorner, nil, style)
-		s.SetContent(x2, y1, tcell.RuneURCorner, nil, style)
-		s.SetContent(x1, y2, tcell.RuneLLCorner, nil, style)
-		s.SetContent(x2, y2, tcell.RuneLRCorner, nil, style)
-	}
-
-	drawText(s, x1+1, y1+1, x2-1, y2-1, style, text)
-}
 
 // -----> X
 // |
@@ -183,13 +261,18 @@ func drawBar(s tcell.Screen, style tcell.Style, items []string) {
 }
 
 func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
-	log.Println("drawing primitive:", v)
+	// log.Println("drawing primitive:", v)
 	d := v.Drawable()
 	dimX, dimY := d.Content.Dims()
 
+	if v.Selected() {
+		log.Println("DRAWING SELECTED")
+		style = style.Foreground(tcell.ColorMediumVioletRed)
+	}
+
 	for x := 0; x < dimX; x++ {
 		for y := 0; y < dimY; y++ {
-			log.Println("Drawing at", x, y)
+			// log.Println("Drawing at", x, y)
 
 			current, _, _, _ := s.GetContent(x+d.StartX, y+d.StartY)
 			// TODO replacement rule for line joins
@@ -197,7 +280,16 @@ func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
 				continue
 			}
 
-			if current == tcell.RuneHLine || current == tcell.RuneVLine || current == tcell.RuneTTee || current == tcell.RuneRTee || current == tcell.RuneLTee || current == tcell.RuneBTee || current == tcell.RuneULCorner || current == tcell.RuneURCorner || current == tcell.RuneURCorner || current == tcell.RuneLLCorner || current == tcell.RuneLRCorner {
+			if current == tcell.RuneHLine ||
+				current == tcell.RuneVLine ||
+				current == tcell.RuneTTee ||
+				current == tcell.RuneRTee ||
+				current == tcell.RuneLTee ||
+				current == tcell.RuneBTee ||
+				current == tcell.RuneULCorner ||
+				current == tcell.RuneURCorner ||
+				current == tcell.RuneLLCorner ||
+				current == tcell.RuneLRCorner {
 				s.SetContent(x+d.StartX, y+d.StartY, tcell.RunePlus, nil, style)
 				continue
 			}
@@ -209,10 +301,13 @@ func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
 }
 
 func drawGraph(s tcell.Screen, g Graph) {
+
+	// log.Printf("Drawing graph:\n%+v", g)
+
 	style := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
 	for _, v := range g.Objects.Box {
-		drawGPrimitive(s, v, style)
+		drawGPrimitive(s, &v, style)
 	}
 
 	for _, v := range g.Objects.Line {
@@ -229,32 +324,32 @@ func drawGraph(s tcell.Screen, g Graph) {
 	for x := 0; x < xmax; x++ {
 		for y := 0; y < ymax; y++ {
 
-			c, _, _, _ := s.GetContent(x, y)
+			c, _, stylec, _ := s.GetContent(x, y)
 
 			if c == tcell.RunePlus {
 
 				// No vertical line above
 				c_above, _, _, _ := s.GetContent(x, y-1)
 				if !(c_above == tcell.RuneVLine) {
-					s.SetContent(x, y, tcell.RuneTTee, nil, style)
+					s.SetContent(x, y, tcell.RuneTTee, nil, stylec)
 				}
 
 				// No vertical line below
 				c_below, _, _, _ := s.GetContent(x, y+1)
 				if !(c_below == tcell.RuneVLine) {
-					s.SetContent(x, y, tcell.RuneBTee, nil, style)
+					s.SetContent(x, y, tcell.RuneBTee, nil, stylec)
 				}
 
 				// No horizontal line right
 				c_right, _, _, _ := s.GetContent(x+1, y)
 				if !(c_right == tcell.RuneHLine) {
-					s.SetContent(x, y, tcell.RuneRTee, nil, style)
+					s.SetContent(x, y, tcell.RuneRTee, nil, stylec)
 				}
 
 				// No horizontal line left
 				c_left, _, _, _ := s.GetContent(x-1, y)
 				if !(c_left == tcell.RuneHLine) {
-					s.SetContent(x, y, tcell.RuneLTee, nil, style)
+					s.SetContent(x, y, tcell.RuneLTee, nil, stylec)
 				}
 			}
 
@@ -278,8 +373,6 @@ func main() {
 	var graph Graph = loadGraph("example.json")
 
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
-	boxStyle := tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorGrey)
-
 	styleBar := tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorDarkBlue)
 
 	// Initialize screen
@@ -329,10 +422,22 @@ func main() {
 	for {
 
 		// Update screen
+		s.Clear()
+
+		drawBar(s, styleBar, []string{"[s] save", "[m] metadata", "[?] help", "[esc] quit"})
+		drawGraph(s, graph)
 		s.Show()
 
 		// Poll event
 		ev := s.PollEvent()
+
+		select {
+		case graph.events <- ev:
+			log.Println("sent message to grarph")
+		default:
+			log.Println("no message sent to graph")
+		}
+		graph.Update()
 
 		// Process event
 		switch ev := ev.(type) {
@@ -349,16 +454,22 @@ func main() {
 		case *tcell.EventMouse:
 			x, y := ev.Position()
 
+			// log.Println(x)
+
 			switch ev.Buttons() {
 			case tcell.Button1, tcell.Button2:
 				if ox < 0 {
 					ox, oy = x, y // record location when click started
 				}
 
+				log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
+
 			case tcell.ButtonNone:
 				if ox >= 0 {
-					label := fmt.Sprintf("%d,%d to %d,%d", ox, oy, x, y)
-					drawBox(s, ox, oy, x, y, boxStyle, label)
+
+					// msg := "hi"
+
+					log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
 					ox, oy = -1, -1
 				}
 			}
