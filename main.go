@@ -13,11 +13,11 @@ import (
 )
 
 type Graph struct {
-	Metadata Metadata `json:"metadata"`
-	Objects  Objects  `json:"objects"`
-	events   chan tcell.Event
-	ox, oy   int
-	// := -1, -1
+	Metadata   Metadata `json:"metadata"`
+	Objects    Objects  `json:"objects"`
+	events     chan tcell.Event
+	ox, oy     int
+	oldx, oldy int
 }
 
 type Metadata struct {
@@ -37,13 +37,52 @@ func (g *Graph) Update() {
 }
 
 func (g *Graph) DeselectAll() {
-
 	for k := range g.Objects.Box {
 		g.Objects.Box[k].selected = false
 	}
+
+	for k := range g.Objects.Line {
+		g.Objects.Line[k].selected = false
+	}
+
+	for k := range g.Objects.Text {
+		g.Objects.Text[k].selected = false
+	}
+}
+
+func (g *Graph) MoveSelected(delta_x, delta_y int) {
+
+	for k := range g.Objects.Box {
+		if g.Objects.Box[k].Selected() {
+			g.Objects.Box[k].Coords[0] += (delta_x - g.oldx)
+			g.Objects.Box[k].Coords[2] += (delta_x - g.oldx)
+			g.Objects.Box[k].Coords[1] += (delta_y - g.oldy)
+			g.Objects.Box[k].Coords[3] += (delta_y - g.oldy)
+		}
+	}
+
+	g.oldx = delta_x
+	g.oldy = delta_y
+
 }
 
 func (g *Graph) Select(x, y int) {
+
+	// If text is clicked, select only that
+
+	for k, v := range g.Objects.Text {
+
+		d := v.Drawable()
+		dimX, dimY := d.Content.Dims()
+
+		if x >= v.Drawable().StartX && x <= d.StartX+dimX && y >= d.StartY && y <= d.StartY+dimY {
+			g.Objects.Text[k].selected = true
+			return
+		}
+	}
+
+	// if x >= v.Coords[0] && x <= v.Coords[2] && y >= v.Coords[1] && y <= v.Coords[3] {
+	// }
 
 	// Select indices of all boxes clicked inside
 	var boxes_sel []int
@@ -53,7 +92,7 @@ func (g *Graph) Select(x, y int) {
 		}
 	}
 
-	//Find smallest most inner (if any)
+	// Find smallest most inner (if any)
 	if len(boxes_sel) >= 1 {
 
 		// select first box
@@ -61,17 +100,17 @@ func (g *Graph) Select(x, y int) {
 		box_n = boxes_sel[0]
 
 		// (x1_old, y1_old)
-		//       +-----------------------------+ x
-		//       |                             |
-		//       | (x1_new, y1_new)            |
-		//       |        +------+             |
-		//       |        |   @  |             |
-		//       |        |      |             |
-		//       |        +------+             |
-		//       |            (x2_new, y2_new) |
-		//       |                             |
-		//       +-----------------------------+
-		//       y                      (x2_old, y2_old)
+		//        +──────────────────────────────┐
+		//        │                              │
+		//        │(x1_new, y1_new)              │
+		//        │       +──────────┐           │
+		//        │       │          │           │
+		//        │       │          │           │
+		//        │       └──────────+           │
+		//        │           (x2_new, y2_new)   │
+		//        │                              │
+		//        └──────────────────────────────+
+		//                                (x2_old, y2_old)
 
 		// x - x1_new <= x - x1_old || x2_new - x < x2_old - x ||
 		// y - y1_new <= y - y1_old || y2_new - y < y2_old - y
@@ -88,23 +127,20 @@ func (g *Graph) Select(x, y int) {
 			}
 		}
 
+		// Also find all boxes that are inside it
 		boxes_sel = []int{box_n}
 		c := g.Objects.Box[box_n].Coords
 
 		for k, v := range g.Objects.Box {
-
 			if (v.Coords[0] >= c[0] && v.Coords[0] <= c[2]) && (v.Coords[1] >= c[1] && v.Coords[1] <= c[3]) &&
-			 (v.Coords[2] >= c[0] && v.Coords[2] <= c[2]) && (v.Coords[3] >= c[1] && v.Coords[3] <= c[3]) {
+				(v.Coords[2] >= c[0] && v.Coords[2] <= c[2]) && (v.Coords[3] >= c[1] && v.Coords[3] <= c[3]) {
 				boxes_sel = append(boxes_sel, k)
 			}
-
 		}
 
 		for _, v := range boxes_sel {
 			g.Objects.Box[v].selected = true
 		}
-
-		// Also select all boxes that are inside it
 
 	}
 
@@ -132,7 +168,10 @@ func (g *Graph) handleEvent(ev tcell.Event) {
 				g.ox, g.oy = x, y // record location when click started
 			}
 
-			g.Select(x, y)
+			if g.ox == x && g.oy == y {
+				g.Select(x, y)
+			}
+			g.MoveSelected(x-g.ox, y-g.oy)
 
 			log.Printf("GRAPH DDDDD: %d,%d to %d,%d", g.ox, g.oy, x, y)
 
@@ -140,6 +179,8 @@ func (g *Graph) handleEvent(ev tcell.Event) {
 			if g.ox >= 0 {
 
 				g.DeselectAll()
+				g.oldx = 0
+				g.oldy = 0
 
 				// msg := "hi"
 
