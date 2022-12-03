@@ -75,9 +75,11 @@ func (g *Graph) Select(x, y int) {
 		d := v.Drawable()
 		dimX, dimY := d.Content.Dims()
 
-		if x >= v.Drawable().StartX && x <= d.StartX+dimX && y >= d.StartY && y <= d.StartY+dimY {
-			g.Objects.Text[k].selected = true
-			return
+		if x >= d.StartX && x < d.StartX+dimX && y >= d.StartY && y < d.StartY+dimY {
+			if d.Content.Get((x - d.StartX) , (y-d.StartY)) != '.' {
+				g.Objects.Text[k].selected = true
+				return
+			}
 		}
 	}
 
