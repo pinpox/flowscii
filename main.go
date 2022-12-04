@@ -61,6 +61,13 @@ func (g *Graph) MoveSelected(delta_x, delta_y int) {
 		}
 	}
 
+	for k := range g.Objects.Text {
+		if g.Objects.Text[k].Selected() {
+			g.Objects.Text[k].Coords[0] += (delta_x - g.oldx)
+			g.Objects.Text[k].Coords[1] += (delta_y - g.oldy)
+		}
+	}
+
 	g.oldx = delta_x
 	g.oldy = delta_y
 
@@ -76,7 +83,7 @@ func (g *Graph) Select(x, y int) {
 		dimX, dimY := d.Content.Dims()
 
 		if x >= d.StartX && x < d.StartX+dimX && y >= d.StartY && y < d.StartY+dimY {
-			if d.Content.Get((x - d.StartX) , (y-d.StartY)) != '.' {
+			if d.Content.Get((x-d.StartX), (y-d.StartY)) != '.' {
 				g.Objects.Text[k].selected = true
 				return
 			}
@@ -140,8 +147,21 @@ func (g *Graph) Select(x, y int) {
 			}
 		}
 
+		// Also find text that is inside that box
+		texts_sel := []int{}
+
+		for k, v := range g.Objects.Text {
+			if (v.Coords[0] >= c[0] && v.Coords[0] <= c[2]) && (v.Coords[1] >= c[1] && v.Coords[1] <= c[3]) {
+				texts_sel = append(texts_sel, k)
+			}
+		}
+
 		for _, v := range boxes_sel {
 			g.Objects.Box[v].selected = true
+		}
+
+		for _, v := range texts_sel {
+			g.Objects.Text[v].selected = true
 		}
 
 	}

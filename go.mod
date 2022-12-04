@@ -1,4 +1,4 @@
-module ascii-plotter
+module flowscii
 
 go 1.19
 
