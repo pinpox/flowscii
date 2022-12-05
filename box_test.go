@@ -7,7 +7,7 @@ import (
 
 func TestBox_Drawable(t *testing.T) {
 
-	rm_9x9 := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
+	rm_9x9 := RuneMap{[][]rune{{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}}}
 	rm_9x9.Set(0, 0, '└')
 	rm_9x9.Set(2, 0, '┘')
 	rm_9x9.Set(2, 2, '┐')
@@ -18,10 +18,10 @@ func TestBox_Drawable(t *testing.T) {
 	rm_9x9.Set(2, 1, '│')
 
 	rm_9x9_shadow := RuneMap{[][]rune{
-		{'.', '.', '.', '.'},
-		{'.', '.', '.', '.'},
-		{'.', '.', '.', '.'},
-		{'.', '.', '.', '.'}}}
+		{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+		{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+		{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+		{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}}}
 
 	rm_9x9_shadow.Set(0, 1, '└')
 	rm_9x9_shadow.Set(2, 1, '┘')

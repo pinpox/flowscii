@@ -64,7 +64,7 @@ func (c Canvas) String() string {
 		for x := 0; x < dX; x++ {
 			for y := 0; y < dY; y++ {
 				// Don't overwrite with empty
-				if d.Content.Get(x, y) == '.' {
+				if d.Content.Get(x, y) == CHAR_EMPTY {
 					continue
 				}
 				r.Set(x+d.StartX, y+d.StartY, d.Content.Get(x, y))

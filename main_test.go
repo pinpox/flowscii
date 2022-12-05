@@ -11,17 +11,17 @@ func TestRuneMap_String(t *testing.T) {
 		{
 			name: "Vertical line",
 			rm: RuneMap{[][]rune{
-				{'.', '|', '.', '.'},
-				{'.', '|', '.', '.'},
-				{'.', '|', '.', '.'},
+				{CHAR_EMPTY, '|', CHAR_EMPTY, CHAR_EMPTY},
+				{CHAR_EMPTY, '|', CHAR_EMPTY, CHAR_EMPTY},
+				{CHAR_EMPTY, '|', CHAR_EMPTY, CHAR_EMPTY},
 			}},
 			want: ".|..\n.|..\n.|..",
 		},
 		{
 			name: "Horizontal line",
 			rm: RuneMap{[][]rune{
-				{'.', '.', '.', '.'},
-				{'.', '.', '.', '.'},
+				{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+				{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
 				{'-', '-', '-', '-'},
 			},
 			},

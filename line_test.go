@@ -14,28 +14,28 @@ func TestLine_Drawable(t *testing.T) {
 // |
 // V  Y
 
-	rm_tr := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
+	rm_tr := RuneMap{[][]rune{{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}}}
 	rm_tr.Set(0, 0, '─')
 	rm_tr.Set(1, 0, '─')
 	rm_tr.Set(2, 0, '┐')
 	rm_tr.Set(2, 1, '│')
 	rm_tr.Set(2, 2, '│')
 
-	rm_tl := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
+	rm_tl := RuneMap{[][]rune{{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}}}
 	rm_tl.Set(0, 2, '│')
 	rm_tl.Set(0, 1, '│')
 	rm_tl.Set(0, 0, '┌')
 	rm_tl.Set(1, 0, '─')
 	rm_tl.Set(2, 2, '─')
 
-	rm_br := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
+	rm_br := RuneMap{[][]rune{{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}}}
 	rm_br.Set(0, 2, '─')
 	rm_br.Set(1, 2, '─')
 	rm_br.Set(2, 2, '┘')
 	rm_br.Set(2, 1, '│')
 	rm_br.Set(2, 0, '│')
 
-	rm_bl := RuneMap{[][]rune{{'.', '.', '.'}, {'.', '.', '.'}, {'.', '.', '.'}}}
+	rm_bl := RuneMap{[][]rune{{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}, {CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY}}}
 	rm_bl.Set(0, 0, '│')
 	rm_bl.Set(0, 1, '│')
 	rm_bl.Set(0, 2, '└')

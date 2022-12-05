@@ -88,9 +88,9 @@ func TestRuneMap_Dims(t *testing.T) {
 			name: "9x9",
 			rm: RuneMap{
 				[][]rune{
-					{'.', '.', '.'},
-					{'.', '.', '.'},
-					{'.', '.', '.'},
+					{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
 				},
 			},
 			wantX: 3,
@@ -101,8 +101,8 @@ func TestRuneMap_Dims(t *testing.T) {
 			name: "5x2",
 			rm: RuneMap{
 				[][]rune{
-					{'.', '.', '.', '.', '.'},
-					{'.', '.', '.', '.', '.'},
+					{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY, CHAR_EMPTY},
 				},
 			},
 			wantX: 5,
@@ -113,11 +113,11 @@ func TestRuneMap_Dims(t *testing.T) {
 			name: "2x5",
 			rm: RuneMap{
 				[][]rune{
-					{'.', '.'},
-					{'.', '.'},
-					{'.', '.'},
-					{'.', '.'},
-					{'.', '.'},
+					{CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY},
+					{CHAR_EMPTY, CHAR_EMPTY},
 				},
 			},
 			wantX: 2,
@@ -128,9 +128,9 @@ func TestRuneMap_Dims(t *testing.T) {
 			name: "1x3",
 			rm: RuneMap{
 				[][]rune{
-					{'.'},
-					{'.'},
-					{'.'},
+					{CHAR_EMPTY},
+					{CHAR_EMPTY},
+					{CHAR_EMPTY},
 				},
 			},
 			wantX: 1,

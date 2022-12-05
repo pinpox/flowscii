@@ -54,7 +54,7 @@ func initRuneMap(x, y int) RuneMap {
 
 	for y := range r {
 		for x := range r[y] {
-			r[y][x] = '.'
+			r[y][x] = CHAR_EMPTY
 		}
 	}
 

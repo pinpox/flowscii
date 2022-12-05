@@ -100,7 +100,7 @@ func (b Box) Drawable() Drawable {
 			rnew.Set(lenX, i, '░')
 		}
 
-		rnew.data[lenY] = makeRow('.', '░', '░', lenX+1)
+		rnew.data[lenY] = makeRow(CHAR_EMPTY, '░', '░', lenX+1)
 
 		r = rnew
 	}
