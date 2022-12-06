@@ -9,7 +9,6 @@ import (
 type Box struct {
 	PrimitiveType
 	Coords []int `json:"coords"`
-
 	// Type for now supports "default" or "shadow"
 	Type string `json:"type"`
 }
@@ -23,20 +22,6 @@ func (b *Box) Click(x, y int) {
 	} else {
 		b.selected = false
 	}
-}
-
-func (b Box) Validate() error {
-	//TODO implement
-	// - start is lower than end and in bounds
-	// - at least 2x2
-	return nil
-}
-
-func abs(i int) int {
-	if i < 0 {
-		i = -i
-	}
-	return i
 }
 
 func (b Box) Draw() RuneMap {
@@ -64,13 +49,6 @@ func (b Box) Draw() RuneMap {
 			r.Set(x+2, y2+1, '░')
 		}
 	}
-
-	// if b.Type == "shadow" {
-
-	// 	for x := x1 + 1; x < x2; x++ {
-	// 		r.Set(x+1, y2+1, '░')
-	// 	}
-	// }
 
 	for y := y1 + 1; y < y2; y++ {
 		r.Set(x1, y, '│')

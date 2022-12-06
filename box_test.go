@@ -33,7 +33,6 @@ func TestBox_Drawable(t *testing.T) {
 	rm_9x9_shadow.Set(3, 4, '░')
 	rm_9x9_shadow.Set(2, 4, '░')
 
-
 	rm_9x9_shadow_offset := RuneMap{}
 	rm_9x9_shadow_offset.Set(2, 5, '└')
 	rm_9x9_shadow_offset.Set(4, 5, '┘')
@@ -64,24 +63,24 @@ func TestBox_Drawable(t *testing.T) {
 			want:   rm_9x9,
 		},
 		// {
-		// 	name:   "Draw 9x9 box, default (reverse)",
-		// 	fields: fields{Coords: []int{2, 2, 0, 0}, Type: "default"},
-		// 	want:   rm_9x9,
+		//	name:   "Draw 9x9 box, default (reverse)",
+		//	fields: fields{Coords: []int{2, 2, 0, 0}, Type: "default"},
+		//	want:   rm_9x9,
 		// },
 		// {
-		// 	name:   "Draw 9x9 box, default (other)",
-		// 	fields: fields{Coords: []int{0, 2, 2, 0}, Type: "default"},
-		// 	want:   rm_9x9,
+		//	name:   "Draw 9x9 box, default (other)",
+		//	fields: fields{Coords: []int{0, 2, 2, 0}, Type: "default"},
+		//	want:   rm_9x9,
 		// },
 		// {
-		// 	name:   "Draw 9x9 box, default (other-reverse)",
-		// 	fields: fields{Coords: []int{2, 0, 0, 2}, Type: "default"},
-		// 	want:   rm_9x9,
+		//	name:   "Draw 9x9 box, default (other-reverse)",
+		//	fields: fields{Coords: []int{2, 0, 0, 2}, Type: "default"},
+		//	want:   rm_9x9,
 		// },
 		// {
-		// 	name:   "Draw 9x9 box, default, offset",
-		// 	fields: fields{Coords: []int{2, 1, 4, 3}, Type: "default"},
-		// 	want:   rm_9x9,
+		//	name:   "Draw 9x9 box, default, offset",
+		//	fields: fields{Coords: []int{2, 1, 4, 3}, Type: "default"},
+		//	want:   rm_9x9,
 		// },
 		{
 			name:   "Draw 9x9 box, shadow",
@@ -89,19 +88,19 @@ func TestBox_Drawable(t *testing.T) {
 			want:   rm_9x9_shadow,
 		},
 		// {
-		// 	name:   "Draw 9x9 box, shadow (reverse)",
-		// 	fields: fields{Coords: []int{2, 2, 0, 0}, Type: "shadow"},
-		// 	want:   rm_9x9_shadow,
+		//	name:   "Draw 9x9 box, shadow (reverse)",
+		//	fields: fields{Coords: []int{2, 2, 0, 0}, Type: "shadow"},
+		//	want:   rm_9x9_shadow,
 		// },
 		// {
-		// 	name:   "Draw 9x9 box, shadow (other)",
-		// 	fields: fields{Coords: []int{0, 2, 2, 0}, Type: "shadow"},
-		// 	want:   rm_9x9_shadow,
+		//	name:   "Draw 9x9 box, shadow (other)",
+		//	fields: fields{Coords: []int{0, 2, 2, 0}, Type: "shadow"},
+		//	want:   rm_9x9_shadow,
 		// },
 		// {
-		// 	name:   "Draw 9x9 box, shadow (other-reverse)",
-		// 	fields: fields{Coords: []int{2, 0, 0, 2}, Type: "shadow"},
-		// 	want:   rm_9x9_shadow,
+		//	name:   "Draw 9x9 box, shadow (other-reverse)",
+		//	fields: fields{Coords: []int{2, 0, 0, 2}, Type: "shadow"},
+		//	want:   rm_9x9_shadow,
 		// },
 		{
 			name:   "Draw 9x9 box, shadow, offset",
@@ -118,6 +117,52 @@ func TestBox_Drawable(t *testing.T) {
 			if got := b.Draw(); !reflect.DeepEqual(got, tt.want) {
 				// t.Errorf("Box.Drawable() = %+v, want %+v", got, tt.want)
 				t.Errorf("Box.Drawable() =\n--START--\n%v\n--END--, want\n--START--\n%v\n--END--\nCoords got\n%v\nCoords want\n\v%v", got, tt.want, got.data, tt.want.data)
+			}
+		})
+	}
+}
+
+func TestBox_Click(t *testing.T) {
+	box := Box{
+		PrimitiveType{false},
+		[]int{0, 0, 4, 4},
+		"default",
+	}
+
+	type args struct {
+		x int
+		y int
+	}
+	tests := []struct {
+		name          string
+		box           Box
+		args          args
+		want_selected bool
+	}{
+
+		{
+			name:          "Click inside",
+			want_selected: true,
+			args:          args{2, 2},
+		},
+		{
+			name:          "Click on border",
+			want_selected: true,
+			args:          args{4, 2},
+		},
+		{
+			name:          "Click outside",
+			want_selected: false,
+			args:          args{2, 7},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := box
+			b.Click(tt.args.x, tt.args.y)
+
+			if b.Selected() != tt.want_selected {
+				t.Errorf("Box selection after Click() = %v, want %v", b.Selected(), tt.want_selected)
 			}
 		})
 	}
