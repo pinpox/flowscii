@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"log"
 	"os"
 	"strings"
-	"github.com/gdamore/tcell/v2"
 )
 
 const CHAR_EMPTY rune = '\x00'
@@ -17,7 +17,6 @@ func map2[T, U any](data []T, f func(T) U) []U {
 	}
 	return res
 }
-
 
 // START TCELL
 
@@ -56,37 +55,46 @@ func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
 
 	for x := 0; x < dimX; x++ {
 		for y := 0; y < dimY; y++ {
-			// log.Println("Drawing at", x, y)
+
+			// Replacement rules when drawing on already non-empty fields
 
 			current, _, _, _ := s.GetContent(x+d.StartX, y+d.StartY)
-			// TODO replacement rule for line joins
+
+			// Don't draw empty or identical rune
 			if d.Content.Get(x, y) == CHAR_EMPTY || d.Content.Get(x, y) == current {
 				continue
 			}
 
-			if current == tcell.RuneHLine ||
-				current == tcell.RuneVLine ||
-				current == tcell.RuneTTee ||
-				current == tcell.RuneRTee ||
-				current == tcell.RuneLTee ||
-				current == tcell.RuneBTee ||
-				current == tcell.RuneULCorner ||
-				current == tcell.RuneURCorner ||
-				current == tcell.RuneLLCorner ||
-				current == tcell.RuneLRCorner {
+			// If both current and new rune are lines (different orientation),
+			// draw intercection.
+			if isLineRune(current) && isLineRune(d.Content.Get(x, y)) {
 				s.SetContent(x+d.StartX, y+d.StartY, tcell.RunePlus, nil, style)
 				continue
 			}
 
+			// In all other cases just draw the rune
 			s.SetContent(x+d.StartX, y+d.StartY, d.Content.Get(x, y), nil, style)
 		}
 	}
 
 }
 
-func drawGraph(s tcell.Screen, g Graph) {
+// isLineRune checks if a rune is a box drawing character for lines,
+// intersections and so on.
+func isLineRune(r rune) bool {
+	return r == tcell.RuneHLine ||
+		r == tcell.RuneVLine ||
+		r == tcell.RuneTTee ||
+		r == tcell.RuneRTee ||
+		r == tcell.RuneLTee ||
+		r == tcell.RuneBTee ||
+		r == tcell.RuneULCorner ||
+		r == tcell.RuneURCorner ||
+		r == tcell.RuneLLCorner ||
+		r == tcell.RuneLRCorner
+}
 
-	// log.Printf("Drawing graph:\n%+v", g)
+func drawGraph(s tcell.Screen, g Graph) {
 
 	style := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 
@@ -176,8 +184,7 @@ func main() {
 	// drawBox(s, 1, 1, 42, 7, boxStyle, "Click and drag to draw a box")
 	// drawBox(s, 5, 9, 32, 14, boxStyle, "Press C to reset")
 
-	// drawText(s, 0, 0, 100, 10, styleBar, "TEST")
-	drawBar(s, styleBar, []string{"[s] save", "[m] metadata", "[?] help", "[esc] quit"})
+	drawBar(s, styleBar, []string{"[s] Save", "[m] Metadata", "[b] Add Box", "[l] Add Line", "[t] Add Text", "[?] Help", "[esc] Quit"})
 	drawGraph(s, graph)
 
 	quit := func() {
@@ -208,7 +215,7 @@ func main() {
 		// Update screen
 		s.Clear()
 
-		drawBar(s, styleBar, []string{"[s] save", "[m] metadata", "[?] help", "[esc] quit"})
+		drawBar(s, styleBar, []string{"[s] Save", "[m] Metadata", "[b] Add Box", "[l] Add Line", "[t] Add Text", "[?] Help", "[esc] Quit"})
 		drawGraph(s, graph)
 		s.Show()
 
@@ -232,6 +239,13 @@ func main() {
 				return
 			} else if ev.Key() == tcell.KeyCtrlL {
 				s.Sync()
+			} else if ev.Rune() == 'b'{
+				graph.AddBox(1,1,5,5)
+			} else if ev.Rune() == 'l'{
+				graph.AddLine([]int{1,10,1,15})
+			} else if ev.Rune() == 't'{
+				graph.AddText(10,10,)
+				s.Clear()
 			} else if ev.Rune() == 'C' || ev.Rune() == 'c' {
 				s.Clear()
 			}

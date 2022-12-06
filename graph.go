@@ -1,13 +1,41 @@
 package main
 
 import (
-	"github.com/gdamore/tcell/v2"
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"github.com/gdamore/tcell/v2"
+	"io/ioutil"
 	"log"
+	"os"
 )
 
+func (g *Graph) AddBox(x1, y1, x2, y2 int) {
+	g.Objects.Box = append(g.Objects.Box, Box{
+		PrimitiveType{false},
+		[]int{x1, y1, x2, y2},
+		"default",
+	})
+}
+
+func (g *Graph) AddLine(coords []int) {
+	g.Objects.Line = append(g.Objects.Line, Line{
+		PrimitiveType{false},
+		coords,
+		"default",
+	})
+}
+
+func (g *Graph) AddText(x1, y1 int) {
+	g.Objects.Text = append(g.Objects.Text, Text{
+		PrimitiveType{false},
+		[]int{x1, y1},
+		"NEW TEXT",
+		[]string{},
+	})
+}
+
+func (g *Graph) SaveJSON(path string) {
+	//TODO
+}
 
 type Graph struct {
 	Metadata   Metadata `json:"metadata"`
@@ -58,7 +86,6 @@ func loadGraph(path string) Graph {
 
 	graph.events = make(chan tcell.Event, 1)
 
-
 	graph.ox = -1
 	graph.oy = -1
 
@@ -83,6 +110,7 @@ func (g *Graph) DeselectAll() {
 
 func (g *Graph) MoveSelected(delta_x, delta_y int) {
 
+	// Boxes
 	for k := range g.Objects.Box {
 		if g.Objects.Box[k].Selected() {
 			g.Objects.Box[k].Coords[0] += (delta_x - g.oldx)
@@ -92,6 +120,7 @@ func (g *Graph) MoveSelected(delta_x, delta_y int) {
 		}
 	}
 
+	// Text
 	for k := range g.Objects.Text {
 		if g.Objects.Text[k].Selected() {
 			g.Objects.Text[k].Coords[0] += (delta_x - g.oldx)
@@ -106,8 +135,8 @@ func (g *Graph) MoveSelected(delta_x, delta_y int) {
 
 func (g *Graph) Select(x, y int) {
 
+	// Text
 	// If text is clicked, select only that
-
 	for k, v := range g.Objects.Text {
 
 		d := v.Drawable()
@@ -120,10 +149,22 @@ func (g *Graph) Select(x, y int) {
 			}
 		}
 	}
+	// Line
 
-	// if x >= v.Coords[0] && x <= v.Coords[2] && y >= v.Coords[1] && y <= v.Coords[3] {
-	// }
+	for k, v := range g.Objects.Line {
 
+		d := v.Drawable()
+		dimX, dimY := d.Content.Dims()
+
+		if x >= d.StartX && x < d.StartX+dimX && y >= d.StartY && y < d.StartY+dimY {
+			if d.Content.Get((x-d.StartX), (y-d.StartY)) != CHAR_EMPTY {
+				g.Objects.Text[k].selected = true
+				return
+			}
+		}
+	}
+
+	// Box
 	// Select indices of all boxes clicked inside
 	var boxes_sel []int
 	for k, v := range g.Objects.Box {
@@ -186,6 +227,7 @@ func (g *Graph) Select(x, y int) {
 				texts_sel = append(texts_sel, k)
 			}
 		}
+		// TODO find lines inside the box
 
 		for _, v := range boxes_sel {
 			g.Objects.Box[v].selected = true
