@@ -138,29 +138,16 @@ func (g *Graph) Select(x, y int) {
 	// Text
 	// If text is clicked, select only that
 	for k, v := range g.Objects.Text {
-
-		d := v.Drawable()
-		dimX, dimY := d.Content.Dims()
-
-		if x >= d.StartX && x < d.StartX+dimX && y >= d.StartY && y < d.StartY+dimY {
-			if d.Content.Get((x-d.StartX), (y-d.StartY)) != CHAR_EMPTY {
-				g.Objects.Text[k].selected = true
-				return
-			}
+		if v.Draw().Get(x, y) != CHAR_EMPTY {
+			g.Objects.Text[k].selected = true
+			return
 		}
 	}
 	// Line
-
 	for k, v := range g.Objects.Line {
-
-		d := v.Drawable()
-		dimX, dimY := d.Content.Dims()
-
-		if x >= d.StartX && x < d.StartX+dimX && y >= d.StartY && y < d.StartY+dimY {
-			if d.Content.Get((x-d.StartX), (y-d.StartY)) != CHAR_EMPTY {
-				g.Objects.Text[k].selected = true
-				return
-			}
+		if v.Draw().Get(x, y) != CHAR_EMPTY {
+			g.Objects.Text[k].selected = true
+			return
 		}
 	}
 
@@ -302,7 +289,7 @@ func (p PrimitiveType) Selected() bool {
 }
 
 type Primitive interface {
-	Drawable() Drawable
+	Draw() RuneMap
 	Selected() bool
 	// Click(x, y int)
 	// Drag(x1, y1, x2, y2 int)

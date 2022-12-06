@@ -45,35 +45,36 @@ func drawBar(s tcell.Screen, style tcell.Style, items []string) {
 
 func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
 	// log.Println("drawing primitive:", v)
-	d := v.Drawable()
-	dimX, dimY := d.Content.Dims()
+	d := v.Draw()
+
+	x1, y1, x2, y2 := d.MinMax()
 
 	if v.Selected() {
 		log.Println("DRAWING SELECTED")
 		style = style.Foreground(tcell.ColorMediumVioletRed)
 	}
 
-	for x := 0; x < dimX; x++ {
-		for y := 0; y < dimY; y++ {
+	for x := x1; x <= x2; x++ {
+		for y := y1; y <= y2; y++ {
 
 			// Replacement rules when drawing on already non-empty fields
 
-			current, _, _, _ := s.GetContent(x+d.StartX, y+d.StartY)
+			current, _, _, _ := s.GetContent(x, y)
 
 			// Don't draw empty or identical rune
-			if d.Content.Get(x, y) == CHAR_EMPTY || d.Content.Get(x, y) == current {
+			if d.Get(x, y) == CHAR_EMPTY || d.Get(x, y) == current {
 				continue
 			}
 
 			// If both current and new rune are lines (different orientation),
 			// draw intercection.
-			if isLineRune(current) && isLineRune(d.Content.Get(x, y)) {
-				s.SetContent(x+d.StartX, y+d.StartY, tcell.RunePlus, nil, style)
+			if isLineRune(current) && isLineRune(d.Get(x, y)) {
+				s.SetContent(x, y, tcell.RunePlus, nil, style)
 				continue
 			}
 
 			// In all other cases just draw the rune
-			s.SetContent(x+d.StartX, y+d.StartY, d.Content.Get(x, y), nil, style)
+			s.SetContent(x, y, d.Get(x, y), nil, style)
 		}
 	}
 

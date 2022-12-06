@@ -13,35 +13,6 @@ type Line struct {
 	Type string `json:"type"`
 }
 
-func findMinMaxCoords(c []int) (minX, minY, maxX, maxY int) {
-
-	minX, maxX = c[0], c[0]
-	minY, maxY = c[1], c[1]
-
-	for i := 0; i < len(c); i += 2 {
-
-		if c[i] > maxX {
-			maxX = c[i]
-		}
-
-		if c[i] < minX {
-			minX = c[i]
-		}
-
-		if c[i+1] > maxY {
-			maxY = c[i+1]
-		}
-
-		if c[i+1] < minY {
-			minY = c[i+1]
-		}
-
-	}
-
-	return minX, minY, maxX, maxY
-
-}
-
 func normalizeCoords(c []int) (coords []int, offsetX int, offsetY int) {
 	coords = append(coords, c...)
 	//find minimum X and Y
@@ -63,13 +34,10 @@ func normalizeCoords(c []int) (coords []int, offsetX int, offsetY int) {
 	return coords, minX, minY
 }
 
-func (l Line) Drawable() Drawable {
+func (l Line) Draw() RuneMap{
 
-	coords, offsetX, offsetY := normalizeCoords(l.Coords)
-
-	//find min/max and create box
-	minX, minY, maxX, maxY := findMinMaxCoords(coords)
-	r := initRuneMap(maxX+1-minX, maxY+1-minY)
+	r := RuneMap{}
+	coords := l.Coords
 
 	// "coords": [ 11,11, 11,15, 5,15 ],
 
@@ -190,8 +158,6 @@ func (l Line) Drawable() Drawable {
 
 	}
 
-	line := Drawable{offsetX, offsetY, r}
-	// fmt.Println("Created line", line)
-	return line
+	return r
 
 }

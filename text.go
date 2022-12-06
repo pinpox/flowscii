@@ -4,12 +4,10 @@ import (
 	"strings"
 )
 
-
-
 type Text struct {
 	PrimitiveType
-	Coords []int  `json:"coords"`
-	Text   string `json:"text"`
+	Coords []int    `json:"coords"`
+	Text   string   `json:"text"`
 	Style  []string `json:"style"`
 }
 
@@ -31,7 +29,7 @@ func (t Text) isBold() bool {
 	return false
 }
 
-func (t Text) Drawable() Drawable {
+func (t Text) Draw() RuneMap {
 
 	text_lines := strings.Split(t.Text, "\n")
 	//find longest line
@@ -43,12 +41,12 @@ func (t Text) Drawable() Drawable {
 		}
 	}
 
-	runemap := initRuneMap(x, len(text_lines))
+	runemap := RuneMap{}
 	for ry, line := range text_lines {
 		for rx, r := range []rune(line) {
-			runemap.Set(rx, ry, r)
+			runemap.Set(t.Coords[0]+rx, t.Coords[1]+ry, r)
 		}
 	}
 
-	return Drawable{t.Coords[0], t.Coords[1], runemap}
+	return runemap
 }
