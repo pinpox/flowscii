@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	// "log"
 )
 
 // RuneMap represents an infinite plane of runes, addressable by x and y.
@@ -40,16 +40,8 @@ func (rm RuneMap) MinMax() (int, int, int, int) {
 
 	minX, minY, maxX, maxY := -1, -1, -1, -1
 
-	log.Printf("finding in %+v", rm.data)
-
-	var xvalues []int
-	var yvalues []int
-
 	for x := range rm.data {
 		for y := range rm.data[x] {
-
-			xvalues = append(xvalues, x)
-			yvalues = append(yvalues, y)
 
 			if minX == -1 || x < minX {
 				minX = x
@@ -67,12 +59,8 @@ func (rm RuneMap) MinMax() (int, int, int, int) {
 				maxY = y
 			}
 
-			log.Println("looping", x, y, minX, minY, maxX, maxY)
 		}
 	}
-
-	log.Println("xvalues", xvalues)
-	log.Println("yvalues", yvalues)
 
 	if maxX == -1 || maxY == -1 || minX == -1 || minY == -1 {
 		return 0, 0, 0, 0
@@ -83,11 +71,14 @@ func (rm RuneMap) MinMax() (int, int, int, int) {
 // String represents a RuneMap as string (with newlines)
 func (rm RuneMap) String() string {
 
+
 	out := ""
 
 	minX, minY, maxX, maxY := rm.MinMax()
 
-	log.Printf("minX: %v, minY: %v, maxX: %v, maxY: %v", minX, minY, maxX, maxY)
+	if minX == maxX && minY == maxY {
+		return ""
+	}
 
 	for y := minY; y <= maxY; y++ {
 		for x := minX; x <= maxX; x++ {

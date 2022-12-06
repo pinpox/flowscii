@@ -54,17 +54,25 @@ func (b Box) Draw() RuneMap {
 	r.Set(x2, y1, '┐')
 	r.Set(x2, y2, '┘')
 
-	for x := x1+1; x < x2; x++ {
+	for x := x1 + 1; x < x2; x++ {
 		r.Set(x, y1, '─')
 		r.Set(x, y2, '─')
 
 		if b.Type == "shadow" {
+			r.Set(x, y2+1, '░')
 			r.Set(x+1, y2+1, '░')
 			r.Set(x+2, y2+1, '░')
 		}
 	}
 
-	for y := y1+1; y < y2; y++ {
+	// if b.Type == "shadow" {
+
+	// 	for x := x1 + 1; x < x2; x++ {
+	// 		r.Set(x+1, y2+1, '░')
+	// 	}
+	// }
+
+	for y := y1 + 1; y < y2; y++ {
 		r.Set(x1, y, '│')
 		r.Set(x2, y, '│')
 
