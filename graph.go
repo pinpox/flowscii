@@ -53,7 +53,7 @@ type Metadata struct {
 func (g *Graph) Update() {
 	select {
 	case event := <-g.events:
-		log.Println("received message in graph", event)
+		// log.Println("received message in graph", event)
 		g.handleEvent(event)
 		//TODO Process event
 	default:
@@ -108,11 +108,86 @@ func (g *Graph) DeselectAll() {
 	}
 }
 
-func (g *Graph) MoveSelected(delta_x, delta_y int) {
+type vec2 struct {
+	X int
+	Y int
+}
+
+func (g *Graph) MoveSelected(x, y int) {
+
+	log.Println("MOVE", x, y)
+	log.Println("O", g.ox, g.oy)
+	log.Println("OLD", g.oldx, g.oldy)
+
+	delta_x := x - g.ox
+	delta_y := y - g.oy
+
+	for k, line := range g.Objects.Line {
+		if line.Selected() {
+
+			log.Println("Moving Line by:", (delta_x - g.oldx), (delta_y - g.oldy))
+
+			// Check if a corner was clicked
+			for i := 0; i < len(line.Coords); i += 2 {
+				line_x := g.Objects.Line[k].Coords[i]
+				line_y := g.Objects.Line[k].Coords[i+1]
+
+				log.Println("LINE COORDS", line_x, line_y)
+				log.Println(g.ox, g.oy, g.oldx, g.oldy, x, y )
+
+				//TODO fix this condition
+				if line_x == g.ox + g.oldx && line_y == g.oy +g.oldy {
+
+					log.Println("moving line....", line_x, line_y, delta_x, delta_y)
+					log.Println("Moving by:", (delta_x - g.oldx), (delta_y - g.oldy))
+
+
+
+					// not first
+					if i != 0 {
+
+						if g.Objects.Line[k].Coords[i] == g.Objects.Line[k].Coords[i-2] {
+							g.Objects.Line[k].Coords[i-2] += (delta_x - g.oldx)
+						}
+
+						if g.Objects.Line[k].Coords[i+1] == g.Objects.Line[k].Coords[i-1] {
+							g.Objects.Line[k].Coords[i-1] += (delta_y - g.oldy)
+						}
+					}
+
+					// not last
+					if i != len(line.Coords)-2 {
+
+						if g.Objects.Line[k].Coords[i+2] == g.Objects.Line[k].Coords[i] {
+							g.Objects.Line[k].Coords[i+2] += (delta_x - g.oldx)
+						}
+
+						if g.Objects.Line[k].Coords[i+1] == g.Objects.Line[k].Coords[i+3] {
+							g.Objects.Line[k].Coords[i+3] += (delta_y - g.oldy)
+						}
+					}
+
+					// 					// Move the corner
+					g.Objects.Line[k].Coords[i] += (delta_x - g.oldx)
+					g.Objects.Line[k].Coords[i+1] += (delta_y - g.oldy)
+
+					// Cleanup
+
+					// 					// Adjust adjecent ones
+
+					break
+					// return
+
+				}
+
+			}
+		}
+	}
 
 	// Boxes
 	for k := range g.Objects.Box {
 		if g.Objects.Box[k].Selected() {
+			log.Println("Moving Box by:", (delta_x - g.oldx), (delta_y - g.oldy))
 			g.Objects.Box[k].Coords[0] += (delta_x - g.oldx)
 			g.Objects.Box[k].Coords[2] += (delta_x - g.oldx)
 			g.Objects.Box[k].Coords[1] += (delta_y - g.oldy)
@@ -123,6 +198,7 @@ func (g *Graph) MoveSelected(delta_x, delta_y int) {
 	// Text
 	for k := range g.Objects.Text {
 		if g.Objects.Text[k].Selected() {
+			log.Println("Moving Text by:", (delta_x - g.oldx), (delta_y - g.oldy))
 			g.Objects.Text[k].Coords[0] += (delta_x - g.oldx)
 			g.Objects.Text[k].Coords[1] += (delta_y - g.oldy)
 		}
@@ -146,7 +222,7 @@ func (g *Graph) Select(x, y int) {
 	// Line
 	for k, v := range g.Objects.Line {
 		if v.Draw().Get(x, y) != CHAR_EMPTY {
-			g.Objects.Text[k].selected = true
+			g.Objects.Line[k].selected = true
 			return
 		}
 	}
@@ -253,9 +329,7 @@ func (g *Graph) handleEvent(ev tcell.Event) {
 			if g.ox == x && g.oy == y {
 				g.Select(x, y)
 			}
-			g.MoveSelected(x-g.ox, y-g.oy)
-
-			log.Printf("GRAPH DDDDD: %d,%d to %d,%d", g.ox, g.oy, x, y)
+			g.MoveSelected(x, y)
 
 		case tcell.ButtonNone:
 			if g.ox >= 0 {
@@ -265,8 +339,7 @@ func (g *Graph) handleEvent(ev tcell.Event) {
 				g.oldy = 0
 
 				// msg := "hi"
-
-				log.Printf("GRAPH Dragged: %d,%d to %d,%d", g.ox, g.oy, x, y)
+				// log.Printf("GRAPH Dragged: %d,%d to %d,%d", g.ox, g.oy, x, y)
 				g.ox, g.oy = -1, -1
 			}
 		}

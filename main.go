@@ -50,7 +50,7 @@ func drawGPrimitive(s tcell.Screen, v Primitive, style tcell.Style) {
 	x1, y1, x2, y2 := d.MinMax()
 
 	if v.Selected() {
-		log.Println("DRAWING SELECTED")
+		// log.Println("DRAWING SELECTED")
 		style = style.Foreground(tcell.ColorMediumVioletRed)
 	}
 
@@ -225,9 +225,9 @@ func main() {
 
 		select {
 		case graph.events <- ev:
-			log.Println("sent message to grarph")
+			// log.Println("sent message to grarph")
 		default:
-			log.Println("no message sent to graph")
+			// log.Println("no message sent to graph")
 		}
 		graph.Update()
 

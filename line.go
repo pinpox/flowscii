@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "log"
+	"log"
 )
 
 
@@ -35,6 +35,9 @@ func normalizeCoords(c []int) (coords []int, offsetX int, offsetY int) {
 }
 
 func (l Line) Draw() RuneMap{
+
+
+		log.Printf("Line Coords: %v", l.Coords)
 
 	r := RuneMap{}
 	coords := l.Coords
@@ -129,7 +132,7 @@ func (l Line) Draw() RuneMap{
 
 			continue
 		}
-		panic("Invalid line coords")
+		log.Fatalf("Invalid Line %v", coords)
 
 	}
 
