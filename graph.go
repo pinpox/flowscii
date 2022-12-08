@@ -16,10 +16,11 @@ func (g *Graph) AddBox(x1, y1, x2, y2 int) {
 	})
 }
 
-func (g *Graph) AddLine(coords []int) {
+func (g *Graph) AddLine(coords []Vec2) {
 	g.Objects.Line = append(g.Objects.Line, Line{
 		PrimitiveType{false},
 		coords,
+		-1,
 		"default",
 	})
 }
@@ -41,8 +42,10 @@ type Graph struct {
 	Metadata   Metadata `json:"metadata"`
 	Objects    Objects  `json:"objects"`
 	events     chan tcell.Event
-	ox, oy     int
 	oldx, oldy int
+
+	dragStart Vec2
+	dragging  bool
 }
 
 type Metadata struct {
@@ -86,8 +89,8 @@ func loadGraph(path string) Graph {
 
 	graph.events = make(chan tcell.Event, 1)
 
-	graph.ox = -1
-	graph.oy = -1
+	graph.dragStart = Vec2{-1, -1}
+	graph.dragging = false
 
 	log.Println("Loaded Graph:", graph)
 
@@ -101,6 +104,7 @@ func (g *Graph) DeselectAll() {
 
 	for k := range g.Objects.Line {
 		g.Objects.Line[k].selected = false
+		g.Objects.Line[k].coord_selected = -1
 	}
 
 	for k := range g.Objects.Text {
@@ -108,89 +112,81 @@ func (g *Graph) DeselectAll() {
 	}
 }
 
-type vec2 struct {
-	X int
-	Y int
+type Vec2 struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+func (v *Vec2) Add(vec Vec2) {
+	v.X += vec.X
+	v.Y += vec.Y
 }
 
 func (g *Graph) MoveSelected(x, y int) {
 
-	log.Println("MOVE", x, y)
-	log.Println("O", g.ox, g.oy)
-	log.Println("OLD", g.oldx, g.oldy)
-
-	delta_x := x - g.ox
-	delta_y := y - g.oy
+	delta_x := x - g.dragStart.X
+	delta_y := y - g.dragStart.Y
 
 	for k, line := range g.Objects.Line {
 		if line.Selected() {
 
-			log.Println("Moving Line by:", (delta_x - g.oldx), (delta_y - g.oldy))
+			if line.coord_selected == -1 {
+				continue
+			}
 
-			// Check if a corner was clicked
-			for i := 0; i < len(line.Coords); i += 2 {
-				line_x := g.Objects.Line[k].Coords[i]
-				line_y := g.Objects.Line[k].Coords[i+1]
+			// not first
+			if line.coord_selected > 0 {
 
-				log.Println("LINE COORDS", line_x, line_y)
-				log.Println(g.ox, g.oy, g.oldx, g.oldy, x, y)
+				// Segment before is vertical
+				if line.Coords[line.coord_selected].X == line.Coords[line.coord_selected-1].X {
+					g.Objects.Line[k].Coords[line.coord_selected-1].X = x
+				} else
 
-				//TODO fix this condition
-				if line_x == g.ox+g.oldx && line_y == g.oy+g.oldy {
-
-					log.Println("moving line....", line_x, line_y, delta_x, delta_y)
-					log.Println("Moving by:", (delta_x - g.oldx), (delta_y - g.oldy))
-
-					// not first
-					if i != 0 {
-
-						if g.Objects.Line[k].Coords[i] == g.Objects.Line[k].Coords[i-2] {
-							g.Objects.Line[k].Coords[i-2] += (delta_x - g.oldx)
-						}
-
-						if g.Objects.Line[k].Coords[i+1] == g.Objects.Line[k].Coords[i-1] {
-							g.Objects.Line[k].Coords[i-1] += (delta_y - g.oldy)
-						}
-					}
-
-					// not last
-					if i != len(line.Coords)-2 {
-
-						if g.Objects.Line[k].Coords[i+2] == g.Objects.Line[k].Coords[i] {
-							g.Objects.Line[k].Coords[i+2] += (delta_x - g.oldx)
-						}
-
-						if g.Objects.Line[k].Coords[i+1] == g.Objects.Line[k].Coords[i+3] {
-							g.Objects.Line[k].Coords[i+3] += (delta_y - g.oldy)
-						}
-					}
-
-					//					// Move the corner
-					g.Objects.Line[k].Coords[i] += (delta_x - g.oldx)
-					g.Objects.Line[k].Coords[i+1] += (delta_y - g.oldy)
-
-					// Cleanup					// Cleanup					// Cleanup
-
-					//					// Adjust adjecent ones
-
-					// break
-					// return
-
+				// Segment before is horizontal
+				if line.Coords[line.coord_selected].Y == line.Coords[line.coord_selected-1].Y {
+					g.Objects.Line[k].Coords[line.coord_selected-1].Y = y
 				}
-
-			}
-		}
-
-		px, py := g.Objects.Line[k].Coords[0], g.Objects.Line[k].Coords[1]
-		for i := 2; i < len(line.Coords); i += 2 {
-
-			if g.Objects.Line[k].Coords[i] != px && g.Objects.Line[k].Coords[i+1] != py {
-				g.Objects.Line[k].Coords[i] = px
 			}
 
-			px, py = g.Objects.Line[k].Coords[i], g.Objects.Line[k].Coords[i+1]
+			// not last
+			if line.coord_selected < len(line.Coords)-1 {
 
+
+				// Segment after is vertical
+				if line.Coords[line.coord_selected].X == line.Coords[line.coord_selected+1].X {
+					g.Objects.Line[k].Coords[line.coord_selected+1].X = x
+				} else
+
+				// Segment after is horizontal
+				if line.Coords[line.coord_selected].Y == line.Coords[line.coord_selected+1].Y {
+					g.Objects.Line[k].Coords[line.coord_selected+1].Y = y
+				}
+			}
+
+			// Move the corner
+			g.Objects.Line[k].Coords[line.coord_selected] = Vec2{x, y}
+			// g.Objects.Line[k].Coords[line.coord_selected].Add(
+			// 	Vec2{
+			// 		(delta_x - g.oldx),
+			// 		(delta_y - g.oldy),
+			// 	})
 		}
+
+		log.Println("LINE IS NOW:", line)
+
+		// Cleanup
+		// px, py := g.Objects.Line[k].Coords[0], g.Objects.Line[k].Coords[1]
+		// for i := 2; i < len(line.Coords); i += 2 {
+
+		//	// both coords differ
+		//	if g.Objects.Line[k].Coords[i] != px && g.Objects.Line[k].Coords[i+1] != py {
+		//		g.Objects.Line[k].Coords[i] = px
+		//	}
+
+		//	px, py = g.Objects.Line[k].Coords[i], g.Objects.Line[k].Coords[i+1]
+
+		// }
+
 	}
 
 	// Boxes
@@ -232,6 +228,14 @@ func (g *Graph) Select(x, y int) {
 	for k, v := range g.Objects.Line {
 		if v.Draw().Get(x, y) != CHAR_EMPTY {
 			g.Objects.Line[k].selected = true
+
+			for kc, coord := range v.Coords {
+				if coord.X == x && coord.Y == y {
+					g.Objects.Line[k].coord_selected = kc
+					break
+				}
+			}
+
 			return
 		}
 	}
@@ -331,26 +335,29 @@ func (g *Graph) handleEvent(ev tcell.Event) {
 
 		switch ev.Buttons() {
 		case tcell.Button1, tcell.Button2:
-			if g.ox < 0 {
-				g.ox, g.oy = x, y // record location when click started
-			}
 
-			if g.ox == x && g.oy == y {
+			// Record starting position of drag, if we are not dragging yet
+			if !g.dragging {
+				g.dragStart = Vec2{x, y}
+				g.dragging = true
 				g.Select(x, y)
+			} else {
+				g.MoveSelected(x, y)
 			}
-			g.MoveSelected(x, y)
 
 		case tcell.ButtonNone:
-			if g.ox >= 0 {
+			// if g.ox >= 0 {
 
-				g.DeselectAll()
-				g.oldx = 0
-				g.oldy = 0
+			g.DeselectAll()
+			g.dragging = false
 
-				// msg := "hi"
-				// log.Printf("GRAPH Dragged: %d,%d to %d,%d", g.ox, g.oy, x, y)
-				g.ox, g.oy = -1, -1
-			}
+			g.oldx = 0
+			g.oldy = 0
+
+			// msg := "hi"
+			// log.Printf("GRAPH Dragged: %d,%d to %d,%d", g.ox, g.oy, x, y)
+			g.dragStart = Vec2{-1, -1}
+			// }
 		}
 	}
 

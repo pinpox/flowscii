@@ -154,6 +154,10 @@ func drawGraph(s tcell.Screen, g Graph) {
 
 func main() {
 
+	if len(os.Args) != 2 {
+		log.Fatalln("Usage: flowscii file.json")
+	}
+
 	// Init logging
 	f, err := os.OpenFile("testlogfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -162,8 +166,9 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
+
 	//load graph
-	var graph Graph = loadGraph("example.json")
+	var graph Graph = loadGraph(os.Args[1])
 
 	defStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset)
 	styleBar := tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorDarkBlue)
@@ -210,7 +215,6 @@ func main() {
 	// s.PostEvent(tcell.NewEventKey(tcell.KeyRune, rune('a'), 0))
 
 	// Event loop
-	ox, oy := -1, -1
 	for {
 
 		// Update screen
@@ -240,37 +244,37 @@ func main() {
 				return
 			} else if ev.Key() == tcell.KeyCtrlL {
 				s.Sync()
-			} else if ev.Rune() == 'b'{
-				graph.AddBox(1,1,5,5)
-			} else if ev.Rune() == 'l'{
-				graph.AddLine([]int{1,10,1,15})
-			} else if ev.Rune() == 't'{
-				graph.AddText(10,10,)
+			} else if ev.Rune() == 'b' {
+				graph.AddBox(1, 1, 5, 5)
+			} else if ev.Rune() == 'l' {
+				graph.AddLine([]Vec2{{1, 10}, {1, 15}})
+			} else if ev.Rune() == 't' {
+				graph.AddText(10, 10)
 				s.Clear()
 			} else if ev.Rune() == 'C' || ev.Rune() == 'c' {
 				s.Clear()
 			}
 		case *tcell.EventMouse:
-			x, y := ev.Position()
+			// x, y := ev.Position()
 
 			// log.Println(x)
 
 			switch ev.Buttons() {
 			case tcell.Button1, tcell.Button2:
-				if ox < 0 {
-					ox, oy = x, y // record location when click started
-				}
+				// if ox < 0 {
+				// 	ox, oy = x, y // record location when click started
+				// }
 
-				log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
+				// log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
 
 			case tcell.ButtonNone:
-				if ox >= 0 {
+				// if ox >= 0 {
 
 					// msg := "hi"
 
-					log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
-					ox, oy = -1, -1
-				}
+					// log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
+					// ox, oy = -1, -1
+				// }
 			}
 		}
 	}
