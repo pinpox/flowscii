@@ -133,15 +133,13 @@ func (g *Graph) MoveSelected(x, y int) {
 				line_y := g.Objects.Line[k].Coords[i+1]
 
 				log.Println("LINE COORDS", line_x, line_y)
-				log.Println(g.ox, g.oy, g.oldx, g.oldy, x, y )
+				log.Println(g.ox, g.oy, g.oldx, g.oldy, x, y)
 
 				//TODO fix this condition
-				if line_x == g.ox + g.oldx && line_y == g.oy +g.oldy {
+				if line_x == g.ox+g.oldx && line_y == g.oy+g.oldy {
 
 					log.Println("moving line....", line_x, line_y, delta_x, delta_y)
 					log.Println("Moving by:", (delta_x - g.oldx), (delta_y - g.oldy))
-
-
 
 					// not first
 					if i != 0 {
@@ -167,20 +165,31 @@ func (g *Graph) MoveSelected(x, y int) {
 						}
 					}
 
-					// 					// Move the corner
+					//					// Move the corner
 					g.Objects.Line[k].Coords[i] += (delta_x - g.oldx)
 					g.Objects.Line[k].Coords[i+1] += (delta_y - g.oldy)
 
-					// Cleanup
+					// Cleanup					// Cleanup					// Cleanup
 
-					// 					// Adjust adjecent ones
+					//					// Adjust adjecent ones
 
-					break
+					// break
 					// return
 
 				}
 
 			}
+		}
+
+		px, py := g.Objects.Line[k].Coords[0], g.Objects.Line[k].Coords[1]
+		for i := 2; i < len(line.Coords); i += 2 {
+
+			if g.Objects.Line[k].Coords[i] != px && g.Objects.Line[k].Coords[i+1] != py {
+				g.Objects.Line[k].Coords[i] = px
+			}
+
+			px, py = g.Objects.Line[k].Coords[i], g.Objects.Line[k].Coords[i+1]
+
 		}
 	}
 
