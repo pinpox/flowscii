@@ -130,46 +130,70 @@ func (g *Graph) MoveSelected(x, y int) {
 	for k, line := range g.Objects.Line {
 		if line.Selected() {
 
+			// Not clicked on corner
 			if line.coord_selected == -1 {
+				//TODO implement grabbing edges
 				continue
 			}
 
-			// not first
-			if line.coord_selected > 0 {
+			first_after := line.coord_selected + 1
+			first_before := line.coord_selected - 1
 
-				// Segment before is vertical
-				if line.Coords[line.coord_selected].X == line.Coords[line.coord_selected-1].X {
-					g.Objects.Line[k].Coords[line.coord_selected-1].X = x
-				} else
-
-				// Segment before is horizontal
-				if line.Coords[line.coord_selected].Y == line.Coords[line.coord_selected-1].Y {
-					g.Objects.Line[k].Coords[line.coord_selected-1].Y = y
-				}
-			}
-
-			// not last
-			if line.coord_selected < len(line.Coords)-1 {
-
-
-				// Segment after is vertical
-				if line.Coords[line.coord_selected].X == line.Coords[line.coord_selected+1].X {
-					g.Objects.Line[k].Coords[line.coord_selected+1].X = x
-				} else
-
-				// Segment after is horizontal
-				if line.Coords[line.coord_selected].Y == line.Coords[line.coord_selected+1].Y {
-					g.Objects.Line[k].Coords[line.coord_selected+1].Y = y
-				}
-			}
+			old_coordsA := g.Objects.Line[k].Coords[line.coord_selected]
+			old_coordsB := g.Objects.Line[k].Coords[line.coord_selected]
 
 			// Move the corner
 			g.Objects.Line[k].Coords[line.coord_selected] = Vec2{x, y}
-			// g.Objects.Line[k].Coords[line.coord_selected].Add(
-			// 	Vec2{
-			// 		(delta_x - g.oldx),
-			// 		(delta_y - g.oldy),
-			// 	})
+
+			// modify the ones after
+			for i := first_after; i < len(line.Coords); i++ {
+
+				// At least one coordinates matches, leave as is
+				if g.Objects.Line[k].Coords[i].X == g.Objects.Line[k].Coords[i-1].X ||
+					g.Objects.Line[k].Coords[i].Y == g.Objects.Line[k].Coords[i-1].Y {
+					break
+				}
+
+				//used to match on X, make it do so again
+				if g.Objects.Line[k].Coords[i].X == old_coordsA.X {
+					old_coordsA = g.Objects.Line[k].Coords[i]
+					g.Objects.Line[k].Coords[i].X = g.Objects.Line[k].Coords[i-1].X
+					continue
+				}
+
+				// used to match on Y, make it do so again
+				if g.Objects.Line[k].Coords[i].Y == old_coordsA.Y {
+					old_coordsA = g.Objects.Line[k].Coords[i]
+					g.Objects.Line[k].Coords[i].Y = g.Objects.Line[k].Coords[i-1].Y
+					continue
+				}
+			}
+
+			// modify the ones before
+			for i := first_before; i >= 0; i-- {
+
+				// At least one coordinates matches, leave as is
+				if g.Objects.Line[k].Coords[i].X == g.Objects.Line[k].Coords[i+1].X ||
+					g.Objects.Line[k].Coords[i].Y == g.Objects.Line[k].Coords[i+1].Y {
+					break
+				}
+
+				//used to match on X, make it do so again
+				if g.Objects.Line[k].Coords[i].X == old_coordsB.X {
+					old_coordsB = g.Objects.Line[k].Coords[i]
+					g.Objects.Line[k].Coords[i].X = g.Objects.Line[k].Coords[i+1].X
+					continue
+				}
+
+				// used to match on Y, make it do so again
+				if g.Objects.Line[k].Coords[i].Y == old_coordsB.Y {
+					old_coordsB = g.Objects.Line[k].Coords[i]
+					g.Objects.Line[k].Coords[i].Y = g.Objects.Line[k].Coords[i+1].Y
+					continue
+				}
+
+			}
+
 		}
 
 		log.Println("LINE IS NOW:", line)
