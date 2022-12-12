@@ -13,18 +13,15 @@ func TestLine_Drawable(t *testing.T) {
 	// |
 	// V  Y
 
-
 	rm_vert := RuneMap{}
 	rm_vert.Set(0, 0, '│')
 	rm_vert.Set(0, 1, '│')
 	rm_vert.Set(0, 2, '│')
 
-
 	rm_horiz := RuneMap{}
 	rm_horiz.Set(0, 0, '─')
 	rm_horiz.Set(1, 0, '─')
 	rm_horiz.Set(2, 0, '─')
-
 
 	rm_tr := RuneMap{}
 	rm_tr.Set(0, 0, '─')
@@ -62,7 +59,7 @@ func TestLine_Drawable(t *testing.T) {
 	rm_bl.Set(2, 2, '─')
 
 	type fields struct {
-		Coords []int
+		Coords []Vec2
 		Type   string
 	}
 	tests := []struct {
@@ -74,7 +71,7 @@ func TestLine_Drawable(t *testing.T) {
 
 			name: "Draw vertical line",
 			fields: fields{
-				Coords: []int{0, 0, 0, 2},
+				Coords: []Vec2{{0, 0}, {0, 2}},
 				Type:   "default",
 			},
 			want: rm_vert,
@@ -82,7 +79,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw horizontal line",
 			fields: fields{
-				Coords: []int{0, 0, 2, 0},
+				Coords: []Vec2{{0, 0}, {2, 0}},
 				Type:   "default",
 			},
 			want: rm_horiz,
@@ -90,7 +87,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw horizontal line (reverse)",
 			fields: fields{
-				Coords: []int{2, 0, 0, 0},
+				Coords: []Vec2{{2, 0}, {0, 0}},
 				Type:   "default",
 			},
 			want: rm_horiz,
@@ -98,7 +95,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (right-up)",
 			fields: fields{
-				Coords: []int{0, 2, 2, 2, 2, 0},
+				Coords: []Vec2{{0, 2}, {2, 2}, {2, 0}},
 				Type:   "default",
 			},
 			want: rm_br,
@@ -106,15 +103,15 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (right-down)",
 			fields: fields{
-				Coords: []int{0, 0, 2, 0, 2, 2},
+				Coords: []Vec2{{0, 0}, {2, 0}, {2, 2}},
 				Type:   "default",
 			},
-			want:  rm_tr,
+			want: rm_tr,
 		},
 		{
 			name: "Draw two lines (left-up)",
 			fields: fields{
-				Coords: []int{2, 2, 0, 2, 0, 0},
+				Coords: []Vec2{{2, 2}, {0, 2}, {0, 0}},
 				Type:   "default",
 			},
 			want: rm_bl,
@@ -122,7 +119,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (left-down)",
 			fields: fields{
-				Coords: []int{2, 0, 0, 0, 0, 2},
+				Coords: []Vec2{{2, 0}, {0, 0}, {0, 2}},
 				Type:   "default",
 			},
 			want: rm_tl,
@@ -130,7 +127,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (up-left)",
 			fields: fields{
-				Coords: []int{2, 2, 2, 0, 0, 0},
+				Coords: []Vec2{{2, 2}, {2, 0}, {0, 0}},
 				Type:   "default",
 			},
 			want: rm_tr,
@@ -138,7 +135,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (down-left)",
 			fields: fields{
-				Coords: []int{2, 0, 2, 2, 0, 2},
+				Coords: []Vec2{{2, 0}, {2, 2}, {0, 2}},
 				Type:   "default",
 			},
 			want: rm_br,
@@ -146,7 +143,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (up-right)",
 			fields: fields{
-				Coords: []int{0, 2, 0, 0, 2, 0},
+				Coords: []Vec2{{0, 2}, {0, 0}, {2, 0}},
 				Type:   "default",
 			},
 			want: rm_tl,
@@ -154,7 +151,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines (down-right)",
 			fields: fields{
-				Coords: []int{0, 0, 0, 2, 2, 2},
+				Coords: []Vec2{{0, 0}, {0, 2}, {2, 2}},
 				Type:   "default",
 			},
 			want: rm_bl,
@@ -163,7 +160,7 @@ func TestLine_Drawable(t *testing.T) {
 		{
 			name: "Draw two lines, offset (right-up)",
 			fields: fields{
-				Coords: []int{5, 7, 7, 7, 7, 5 },
+				Coords: []Vec2{{5, 7}, {7, 7}, {7, 5}},
 				Type:   "default",
 			},
 			want: rm_br_offset,
