@@ -34,8 +34,13 @@ func (g *Graph) AddText(x1, y1 int) {
 	})
 }
 
-func (g *Graph) SaveJSON(path string) {
-	//TODO
+func (g *Graph) SaveJSON(path string) error{
+	file, err := json.MarshalIndent(g, "", " ")
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(path, file, 0644)
 }
 
 type Graph struct {

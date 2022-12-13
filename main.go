@@ -18,8 +18,6 @@ func map2[T, U any](data []T, f func(T) U) []U {
 	return res
 }
 
-// START TCELL
-
 // -----> X
 // |
 // |
@@ -152,6 +150,8 @@ func drawGraph(s tcell.Screen, g Graph) {
 
 }
 
+// var barText string = ""
+
 func main() {
 
 	if len(os.Args) != 2 {
@@ -165,7 +165,6 @@ func main() {
 	}
 	defer f.Close()
 	log.SetOutput(f)
-
 
 	//load graph
 	var graph Graph = loadGraph(os.Args[1])
@@ -244,6 +243,12 @@ func main() {
 				return
 			} else if ev.Key() == tcell.KeyCtrlL {
 				s.Sync()
+			} else if ev.Rune() == 'r' {
+				graph = loadGraph(os.Args[1])
+			} else if ev.Rune() == 's' {
+				if graph.SaveJSON(os.Args[1]); err != nil {
+					log.Println("ERROR saving file:", err)
+				}
 			} else if ev.Rune() == 'b' {
 				graph.AddBox(1, 1, 5, 5)
 			} else if ev.Rune() == 'l' {
@@ -270,10 +275,10 @@ func main() {
 			case tcell.ButtonNone:
 				// if ox >= 0 {
 
-					// msg := "hi"
+				// msg := "hi"
 
-					// log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
-					// ox, oy = -1, -1
+				// log.Printf("Dragged: %d,%d to %d,%d", ox, oy, x, y)
+				// ox, oy = -1, -1
 				// }
 			}
 		}
