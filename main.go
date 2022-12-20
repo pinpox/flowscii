@@ -239,10 +239,13 @@ func main() {
 		case *tcell.EventResize:
 			s.Sync()
 		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+			if ev.Rune() == 'q' || ev.Key() == tcell.KeyCtrlC {
 				return
 			} else if ev.Key() == tcell.KeyCtrlL {
 				s.Sync()
+			} else if ev.Key() == tcell.KeyEscape {
+				// TODO endinput
+				// s.Sync()
 			} else if ev.Rune() == 'r' {
 				graph = loadGraph(os.Args[1])
 			} else if ev.Rune() == 's' {
